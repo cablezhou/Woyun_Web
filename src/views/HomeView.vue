@@ -28,7 +28,7 @@
 
     <!-- Hero Section -->
     <div class="hero-section" ref="heroSectionRef">
-      <video autoplay muted loop class="hero-video">
+      <video autoplay muted loop playsinline class="hero-video">
         <source src="https://cable-website-video.oss-cn-beijing.aliyuncs.com/2.mp4" type="video/mp4">
         您的浏览器不支持视频播放。
       </video>
@@ -337,7 +337,7 @@ const activities = ref([
   {
   
     id: 4,
-    name: '"阳康"后首次换滇',
+    name: '"阳康"后首次环滇',
     date: '2023年1月',
     description: '病体初愈，车队几人相约环滇复建。',
     image: import.meta.env.BASE_URL + 'imagines/4.jpg'

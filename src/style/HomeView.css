@@ -64,6 +64,7 @@ body:has(.home) {
   z-index: 2;
   text-align: center;
   color: white;
+  max-width: 1000px !important;
 }
 
 .hero-slogan {
@@ -795,8 +796,8 @@ body:has(.home) {
 
 .activity-image {
   flex-shrink: 0;
-  width: 160px;
-  height: 160px;
+  width: 220px;
+  height: 220px;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -865,7 +866,7 @@ body:has(.home) {
   
   .activity-image {
     width: 100%;
-    height: 200px;
+    height: 240px;
   }
   
   .activities-section {
