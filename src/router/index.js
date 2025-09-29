@@ -48,4 +48,17 @@ const router = createRouter({
   ]
 })
 
+// --- START: Added logic for GitHub Pages 404 redirect ---
+
+// This code runs when the app first loads
+const redirectPath = sessionStorage.getItem('redirectPath');
+if (redirectPath) {
+  // Clear the saved path so it doesn't trigger again on the next refresh
+  sessionStorage.removeItem('redirectPath');
+  // Navigate to the path the user was originally trying to access
+  router.replace(redirectPath);
+}
+
+// --- END: Added logic ---
+
 export default router

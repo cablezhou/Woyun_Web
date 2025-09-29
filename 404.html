@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+      // 从 URL 中提取路径和查询参数
+      const path = window.location.pathname;
+      const query = window.location.search;
+      
+      // 将路径和查询参数存储在 sessionStorage 中
+      // 我们不使用 localStorage，因为我们不希望它在关闭浏览器后仍然存在
+      sessionStorage.setItem('redirectPath', path + query);
+
+      // 重定向到项目的根目录（首页）
+      // Github Pages 会自动处理仓库名的前缀
+      window.location.href = '/Woyun_Web/'; 
+    </script>
+  </head>
+  <body>
+    <p>If you are not redirected automatically, follow this <a href="/Woyun_Web/">link to home</a>.</p>
+  </body>
+</html>
