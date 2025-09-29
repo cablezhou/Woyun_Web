@@ -253,7 +253,7 @@ const joinRef = ref<HTMLElement | null>(null);
 
 const highlights = ref([
   {
-    img: import.meta.env.BASE_URL + 'imagines/carousel/new1.jpg',
+    img:'Woyun_Web/imagines/carousel/new1.jpg',
     title: '城市骑行',
     description: '穿梭在城市的大街小巷，感受都市的脉搏'
   },
