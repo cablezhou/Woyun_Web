@@ -834,15 +834,20 @@ const publishPost = async () => {
     
     // 处理返回的动态数据 - 使用统一的图片URL处理函数
     const fullAuthorAvatar = getFullImageUrl(newPostItem.author?.avatarUrl)
+    const processedImages = processImageUrls(newPostItem.imageUrls || [])
+    
+    // 使用新的图片加载工具处理头像和图片，确保首次显示正常
+    const processedAvatar = await loadImageWithHeaders(fullAuthorAvatar)
+    const processedImageUrls = await loadImagesWithHeaders(processedImages)
     
     const processedPost = {
       id: newPostItem.id,
       content: newPostItem.content,
-      images: processImageUrls(newPostItem.imageUrls || []),
+      images: processedImageUrls,
       user: {
         id: newPostItem.author?.id,
         name: newPostItem.author?.name || newPostItem.author?.username,
-        avatar: fullAuthorAvatar
+        avatar: processedAvatar
       },
       likes: newPostItem.likeCount || 0,
       isLiked: newPostItem.isLiked || false,
