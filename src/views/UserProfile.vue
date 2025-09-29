@@ -419,6 +419,38 @@ watch(
   { immediate: true }
 )
 
+// 监听路由参数变化，当导航到不同用户时重新加载数据
+watch(
+  () => route.params.id,
+  (newUserId, oldUserId) => {
+    if (newUserId && newUserId !== oldUserId) {
+      console.log('路由参数变化，重新加载用户数据:', newUserId)
+      // 重置状态
+      isLoading.value = true
+      userProfile.value = {}
+      userPosts.value = []
+      userPhotos.value = []
+      userRoutes.value = []
+      computedAvatarUrl.value = ''
+      
+      // 重新加载所有数据
+      loadUserProfile()
+      Promise.all([
+        loadUserPhotos().catch(err => {
+          console.error('加载用户相册失败:', err)
+        }),
+        loadUserPosts().catch(err => {
+          console.error('加载用户动态失败:', err)
+        }),
+        loadUserRoutes().catch(err => {
+          console.error('加载用户路线失败:', err)
+        })
+      ])
+    }
+  },
+  { immediate: false }
+)
+
 // 状态管理
 const showImageViewer = ref(false)
 const currentViewImage = ref('')
