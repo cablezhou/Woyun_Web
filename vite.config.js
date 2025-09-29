@@ -31,15 +31,15 @@ export default defineConfig({
     // 或者只允许当前localtunnel生成的域名
      allowedHosts: ['meaning-formation-arab-mountains.trycloudflare.com'],
      
-    // 添加代理配置解决CORS问题
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        // 保留原始路径
-        rewrite: (path) => path
-      }
-    }
+    // 注释掉代理配置，因为现在直接使用ngrok URL
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:8080',
+    //     changeOrigin: true,
+    //     secure: false,
+    //     // 保留原始路径
+    //     rewrite: (path) => path
+    //   }
+    // }
   }
 })

@@ -29,8 +29,8 @@ console.log('🗺️ 高德地图配置:', AMAP_CONFIG)
 
 // API配置
 export const API_CONFIG = {
-  // 开发环境使用相对路径，交给Vite代理处理
-  baseURL: import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'https://41a7149c27b7.ngrok-free.app'),
+  // 生产环境和ngrok环境都使用完整URL
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://41a7149c27b7.ngrok-free.app',
   timeout: 10000,
   // 请求重试配置
   retry: {

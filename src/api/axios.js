@@ -9,6 +9,10 @@ const httpClient = axios.create({
   baseURL: API_CONFIG.baseURL,
   timeout: API_CONFIG.timeout,
   // 不设置默认的Content-Type，让每个请求自己决定
+  // 添加ngrok特定的头部以避免OpaqueResponseBlocking
+  headers: {
+    'ngrok-skip-browser-warning': 'true'
+  }
 })
 
 // 请求拦截器 - 自动添加token
