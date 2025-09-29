@@ -249,19 +249,21 @@ const videoElement = ref<HTMLVideoElement | null>(null);
 const philosophyRef = ref<HTMLElement | null>(null);
 const joinRef = ref<HTMLElement | null>(null);
 
+
+
 const highlights = ref([
   {
-    img: '/imagines/carousel/new1.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/carousel/new1.jpg',
     title: '城市骑行',
     description: '穿梭在城市的大街小巷，感受都市的脉搏'
   },
   {
-    img: '/imagines/carousel/new3.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/carousel/new3.jpg',
     title: '团队合影',
     description: '记录每一次出行，留下美好回忆'
   },
   {
-    img: '/imagines/carousel/new2.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/carousel/new2.jpg',
     title: '自然风光',
     description: '远离喧嚣，拥抱大自然的怀抱'
   }
@@ -269,22 +271,22 @@ const highlights = ref([
 
 const routes = ref([
   {
-    img: '/imagines/history/c1.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/history/c1.jpg',
     title: '山地挑战线',
     description: '征服起伏山路，挑战自我极限'
   },
   {
-    img: '/imagines/history/c2.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/history/c2.jpg',
     title: '湖畔休闲线',
     description: '沿湖而行，享受宁静美景'
   },
   {
-    img: '/imagines/history/c3.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/history/c3.jpg',
     title: '乡村探索线',
-    description: '穿越田野乡间，体验纯朴风情'
+    description: '穿越田野乡间，体验淳朴风情'
   },
   {
-    img: '/imagines/history/c4.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/history/c4.jpg',
     title: '城际连接线',
     description: '连接城市之间，开启长途骑行'
   }
@@ -292,22 +294,22 @@ const routes = ref([
 
 const philosophies = ref([
   {
-    img: '/imagines/philosophy/微信图片_20250919145702_94_51.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/philosophy/微信图片_20250919145702_94_51.jpg',
     title: '安全第一',
     description: '每次骑行都严格遵守交通规则，佩戴安全装备，确保每位队员的安全。'
   },
   {
-    img: '/imagines/philosophy/微信图片_20250919145704_95_51.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/philosophy/微信图片_20250919145704_95_51.jpg',
     title: '团队协作',
     description: '相互帮助，共同进步，没有人会被落下，我们一起到达终点。'
   },
   {
-    img: 'public/imagines/philosophy/微信图片_20250919145706_96_51.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/philosophy/微信图片_20250919145706_96_51.jpg',
     title: '环保出行',
     description: '用自行车代替机动车，为环保贡献一份力量，保护我们美丽的地球。'
   },
   {
-    img: '/imagines/philosophy/微信图片_20250919145718_97_51.jpg',
+    img: import.meta.env.BASE_URL + 'imagines/philosophy/微信图片_20250919145718_97_51.jpg',
     title: '挑战自我',
     description: '不断突破自己的极限，在骑行中发现更强大的自己。'
   }
@@ -319,42 +321,42 @@ const activities = ref([
     name: '散旦镇探险',
     date: '2021年2月',
     description: '探寻陌生路线，战胜泥泞山险',
-    image: '/imagines/1.jpg'
+    image: import.meta.env.BASE_URL + 'imagines/1.jpg'
   },
   {
     id: 2,
     name: '团结乡骑游',
     date: '我怎么记得',
     description: '团结乡游乐骑行，激发骑行激情。',
-    image: '/imagines/2.jpg'
+    image: import.meta.env.BASE_URL + 'imagines/2.jpg'
   },
   {
     id: 3,
     name: '初登卧云山',
     date: '2021年4月',
     description: '郭周金三人首次攀登卧云山，成功登顶。',
-    image: '/imagines/3.jpg'
+    image: import.meta.env.BASE_URL + 'imagines/3.jpg'
   },
   {
     id: 4,
-    name: '“阳康”后首次换滇',
+    name: '"阳康"后首次换滇',
     date: '2023年1月',
     description: '病体初愈，车队几人相约环滇复建。',
-    image: '/imagines/4.jpg'
+    image: import.meta.env.BASE_URL + 'imagines/4.jpg'
   },
   {
     id: 5,
     name: '昆明弥勒大环线',
     date: '2023年2月',
     description: '冬季严寒天气下骑行，昆明至弥勒。',
-    image: '/imagines/5.jpg'
+    image: import.meta.env.BASE_URL + 'imagines/5.jpg'
   },
   {
     id: 6,
     name: '卧云山朝圣',
     date: '2023年4月',
     description: '车队骑行活动人数至多之行，二登卧云山',
-    image: '/imagines/6.jpg'
+    image: import.meta.env.BASE_URL + 'imagines/6.jpg'
   }
 ]);
 
