@@ -3,13 +3,17 @@
  */
 import { http } from './axios.js'
 import axios from 'axios'
+import { API_CONFIG } from '../config/index.js'
 
 // 为文件上传创建一个完全独立的axios实例，避免任何默认配置干扰
 const createUploadClient = () => {
   const client = axios.create({
-    baseURL: '',
+    baseURL: API_CONFIG.baseURL,
     timeout: 30000,
     // 完全没有默认headers
+    headers: {
+      'ngrok-skip-browser-warning': 'true'
+    }
   })
   
   // 添加专门的请求拦截器，只处理认证
