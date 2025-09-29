@@ -1,13 +1,13 @@
-# 工作流的名称
+# .github/workflows/deploy.yml
+
 name: Deploy Vue App to GitHub Pages
 
-# 触发工作流的事件
 on:
   # 当推送到 master 分支时触发
   push:
-    branches: ["master"] # 如果主分支是 main，改成 ["main"]
+    branches: ["master"] # 如果您的主分支是 main，请改成 ["main"]
 
-  # 允许在 GitHub Actions 页面手动触发此工作流
+  # 允许您在 GitHub Actions 页面手动触发此工作流
   workflow_dispatch:
 
 # 设置工作流所需的权限
@@ -19,7 +19,6 @@ permissions:
 # 定义一个名为 "deploy" 的作业（Job）
 jobs:
   deploy:
-    # 指定作业运行的环境
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -31,18 +30,18 @@ jobs:
     steps:
       # 第一步：检出您的代码
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # 更新到 v4
 
       # 第二步：设置 Node.js 环境
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # 更新到 v4
         with:
           node-version: 18 # 您可以根据需要更改 Node.js 版本
           cache: 'npm'
 
       # 第三步：安装项目依赖
       - name: Install Dependencies
-        run: npm ci # 'ci' 命令比 'install' 更快、更适合自动化环境
+        run: npm ci 
 
       # 第四步：构建项目
       - name: Build
@@ -50,15 +49,15 @@ jobs:
 
       # 第五步：配置 GitHub Pages
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5 # 更新到 v5
 
       # 第六步：上传构建产物（dist 文件夹）
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3 # 更新到 v3 (这是专门为 Pages 优化的)
         with:
           path: './dist'
 
       # 第七步：部署到 GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4 # 更新到 v4
