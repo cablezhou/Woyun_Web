@@ -1,0 +1,996 @@
+<script setup>
+import { ref, reactive, onMounted, nextTick, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '../stores/auth.js'
+import { 
+  getCurrentUserInfo, 
+  getUserInfo, 
+  updateUserInfo, 
+  uploadAvatar, 
+  getUserPhotos, 
+  uploadPhotos, 
+  deletePhoto as deletePhotoAPI,
+  getUserPosts
+} from '../api/user.js'
+import { getUserRoutes, updateRoute, deleteRoute as deleteRouteAPI } from '../api/routes.js'
+import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
+
+const route = useRoute()
+const router = useRouter()
+const { currentUser, updateUserInfo: updateAuthUserInfo } = useAuth()
+const activeMenu = ref('4') // 个人主页应该对应"活动动态"菜单项
+
+// 监听currentUser变化，确保导航正确
+watch(
+  () => currentUser.value,
+  (newUser) => {
+    if (!newUser && route.name === 'userProfile') {
+      // 如果用户未登录但试图访问个人主页，重定向到社区
+      router.push('/community').catch(err => {
+        console.warn('路由跳转失败:', err)
+      })
+    }
+  },
+  { immediate: true }
+)
+
+// 状态管理
+const showImageViewer = ref(false)
+const currentViewImage = ref('')
+const viewerImages = ref([])
+const currentImageIndex = ref(0)
+const editingName = ref(false)
+const editingTitle = ref(false)
+const editNameValue = ref('')
+const editTitleValue = ref('')
+const isLoading = ref(true)
+const isUploading = ref(false)
+const isCurrentUser = computed(() => {
+  const routeUserId = parseInt(route.params.id)
+  return routeUserId === currentUser.value?.id
+})
+
+// 路线编辑相关
+const showRouteEditDialog = ref(false)
+const isRouteEditing = ref(false)
+const currentEditingRouteId = ref(null)
+const routeEditFormRef = ref(null)
+
+const routeEditForm = reactive({
+  title: '',
+  description: '',
+  difficulty: '',
+  routeType: ''
+})
+
+const routeEditFormRules = {
+  title: [
+    { required: true, message: '请输入路线标题', trigger: 'blur' }
+  ],
+  description: [
+    { required: true, message: '请输入路线描述', trigger: 'blur' }
+  ],
+  difficulty: [
+    { required: true, message: '请选择难度等级', trigger: 'change' }
+  ],
+  routeType: [
+    { required: true, message: '请选择路线类型', trigger: 'change' }
+  ]
+}
+
+// 计算属性：处理头像 URL
+const computedAvatarUrl = computed(() => {
+  const avatarUrl = userProfile.value.avatarUrl
+  if (!avatarUrl) {
+    return '/imagines/members/avatar/member1.jpg'
+  }
+  
+  // 如果已经是完整URL，直接返回
+  if (avatarUrl.startsWith('http')) {
+    return avatarUrl
+  }
+  
+  // 如果是相对路径，添加base URL
+  if (avatarUrl.startsWith('/')) {
+    return `http://localhost:8080${avatarUrl}`
+  }
+  
+  // 其他情况也加上基础URL
+  return `http://localhost:8080/${avatarUrl}`
+})
+
+// 计算属性：处理相册照片 URL
+const computedPhotos = computed(() => {
+  return userProfile.value.photos.map(photo => {
+    const photoUrl = photo.photoUrl || photo.url
+    if (!photoUrl) return photo
+    
+    // 检查是否已经是完整URL
+    if (photoUrl.startsWith('http')) {
+      return {
+        ...photo,
+        photoUrl: photoUrl,
+        url: photoUrl
+      }
+    }
+    
+    // 检查是否是相对路径
+    if (photoUrl.startsWith('/')) {
+      const fullUrl = `http://localhost:8080${photoUrl}`
+      return {
+        ...photo,
+        photoUrl: fullUrl,
+        url: fullUrl
+      }
+    }
+    
+    // 其他情况也加上基础URL
+    const fullUrl = `http://localhost:8080/${photoUrl}`
+    return {
+      ...photo,
+      photoUrl: fullUrl,
+      url: fullUrl
+    }
+  })
+})
+
+// DOM引用
+const backgroundRef = ref(null)
+const userInfoRef = ref(null)
+const galleryRef = ref(null)
+const postsRef = ref(null)
+const routesRef = ref(null)  // 添加路线区域引用
+const postRefs = reactive({})
+const avatarInput = ref(null)
+const photosInput = ref(null)
+const nameInput = ref(null)
+const titleInput = ref(null)
+
+// 用户资料数据
+const userProfile = ref({
+  id: null,
+  name: '',
+  title: '',
+  bio: '',
+  avatar: '',
+  joinDate: '',
+  stats: {
+    postsCount: 0,
+    totalLikesReceived: 0,
+    daysAsMember: 0
+  },
+  photos: [],
+  photoAlbumPreview: []
+})
+
+// 用户动态数据
+const userPosts = ref([])
+
+// 用户路线数据
+const userRoutes = ref([])
+
+// 加载用户信息
+const loadUserProfile = async () => {
+  try {
+    isLoading.value = true
+    const userId = parseInt(route.params.id)
+    
+    let userInfo
+    if (isCurrentUser.value) {
+      // 获取当前用户的完整信息
+      userInfo = await getCurrentUserInfo()
+    } else {
+      // 获取指定用户的公开信息
+      userInfo = await getUserInfo(userId)
+    }
+    
+    userProfile.value = {
+      ...userInfo,
+      stats: {
+        postsCount: userInfo.postCount || 0,
+        totalLikesReceived: userInfo.totalLikesReceived || 0,
+        daysAsMember: userInfo.daysAsMember || 0
+      },
+      photos: userInfo.photoAlbumPreview || []
+    }
+    
+    console.log('用户信息加载成功:', userProfile.value)
+    
+  } catch (error) {
+    console.error('加载用户信息失败:', error)
+    ElMessage.error('加载用户信息失败')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 加载用户路线
+const loadUserRoutes = async () => {
+  try {
+    // 确保有用户ID
+    const userId = parseInt(route.params.id)
+    if (!userId) {
+      console.warn('无法加载用户路线：无效的用户ID')
+      return
+    }
+    
+    console.log('🔍 加载用户路线，用户ID:', userId)
+    const routesData = await getUserRoutes(userId, { page: 0, size: 10 })
+    console.log('📨 用户路线响应:', routesData)
+    
+    // 处理路线数据
+    // 根据API文档，响应格式为 {code: 200, message: "操作成功", data: {...}}
+    // 我们需要提取data字段，然后再处理content
+    const responseData = routesData.data || routesData
+    let rawRoutes = responseData.content || responseData || []
+    console.log('📋 提取的路线列表:', rawRoutes)
+    
+    // 处理路线数据格式 - 使用后端生成的缩略图
+    const processedRoutes = rawRoutes.map(route => {
+      // 处理缩略图URL，优先使用thumbnailUrl（后端生成的缩略图）
+      let thumbnail = '/imagines/Background2.jpg'
+      if (route.thumbnailUrl) {
+        // 使用后端生成的缩略图
+        thumbnail = route.thumbnailUrl.startsWith('http') ? route.thumbnailUrl : `http://localhost:8080${route.thumbnailUrl}`
+      } else if (route.thumbnail) {
+        // 兼容旧的thumbnail字段
+        thumbnail = route.thumbnail.startsWith('http') ? route.thumbnail : `http://localhost:8080${route.thumbnail}`
+      }
+      
+      console.log('🖼️ 路线缩略图URL:', thumbnail)
+      
+      return {
+        id: route.id,
+        title: route.title,
+        description: route.description,
+        distance: route.distance,
+        elevation: route.elevationGain || route.elevation || 0,
+        estimatedTime: route.estimatedTime || '未知',
+        difficulty: route.difficulty || 'medium',
+        type: route.routeType || route.type || 'scenic', // 注意是routeType而不是type
+        thumbnail: thumbnail,
+        createdAt: new Date(route.createdAt)
+      }
+    })
+    
+    userRoutes.value = processedRoutes
+    
+    console.log('✅ 用户路线加载成功:', processedRoutes.length, '条')
+    
+  } catch (error) {
+    console.error('❌ 加载用户路线失败:', error)
+    // 不显示错误，因为路线功能可能还未完全实现
+  }
+}
+
+// 刷新用户路线
+const refreshRoutes = async () => {
+  await loadUserRoutes()
+  ElMessage.success('路线列表已刷新')
+}
+
+// 编辑路线
+const editRoute = (route) => {
+  // 设置当前编辑的路线ID
+  currentEditingRouteId.value = route.id
+  
+  // 填充表单数据
+  routeEditForm.title = route.title
+  routeEditForm.description = route.description
+  routeEditForm.difficulty = route.difficulty
+  routeEditForm.routeType = route.type
+  
+  // 显示编辑对话框
+  showRouteEditDialog.value = true
+}
+
+// 提交路线编辑
+const submitRouteEdit = async () => {
+  if (!routeEditFormRef.value) return
+  
+  await routeEditFormRef.value.validate(async (valid) => {
+    if (!valid) {
+      ElMessage.error('请填写所有必填项')
+      return
+    }
+    
+    try {
+      isRouteEditing.value = true
+      
+      // 准备更新数据
+      const updateData = {
+        title: routeEditForm.title,
+        description: routeEditForm.description,
+        difficulty: routeEditForm.difficulty,
+        routeType: routeEditForm.routeType
+      }
+      
+      // 调用API更新路线
+      const updatedRoute = await updateRoute(currentEditingRouteId.value, updateData)
+      
+      // 更新本地数据
+      const routeIndex = userRoutes.value.findIndex(r => r.id === currentEditingRouteId.value)
+      if (routeIndex !== -1) {
+        userRoutes.value[routeIndex] = {
+          ...userRoutes.value[routeIndex],
+          title: updatedRoute.title,
+          description: updatedRoute.description,
+          difficulty: updatedRoute.difficulty,
+          type: updatedRoute.routeType || updatedRoute.type
+        }
+      }
+      
+      // 关闭对话框
+      showRouteEditDialog.value = false
+      
+      ElMessage.success('路线更新成功')
+      
+    } catch (error) {
+      console.error('更新路线失败:', error)
+      ElMessage.error('更新路线失败: ' + (error.message || '未知错误'))
+    } finally {
+      isRouteEditing.value = false
+    }
+  })
+}
+
+// 删除路线
+const deleteRouteConfirm = async (routeId) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这条路线吗？此操作不可撤销。', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    // 调用API删除路线
+    await deleteRouteAPI(routeId)
+    
+    // 从本地数据中移除
+    const routeIndex = userRoutes.value.findIndex(r => r.id === routeId)
+    if (routeIndex !== -1) {
+      userRoutes.value.splice(routeIndex, 1)
+    }
+    
+    ElMessage.success('路线删除成功')
+    
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除路线失败:', error)
+      ElMessage.error('删除路线失败: ' + (error.message || '未知错误'))
+    }
+  }
+}
+
+// 加载用户动态
+const loadUserPosts = async () => {
+  try {
+    const userId = parseInt(route.params.id)
+    console.log('🔍 加载用户动态，用户ID:', userId)
+    
+    const postsData = await getUserPosts(userId, { page: 0, size: 20 })
+    console.log('📨 原始动态数据:', postsData)
+    
+    // 处理分页数据和数据格式
+    // 根据API文档，响应格式为 {code: 200, message: "操作成功", data: {...}}
+    // 我们需要提取data字段，然后再处理content
+    const responseData = postsData.data || postsData
+    let rawPosts = responseData.content || responseData || []
+    console.log('📋 提取的动态列表:', rawPosts)
+    
+    // 处理动态数据格式，确保与社区页面一致
+    const processedPosts = rawPosts.map(post => {
+      // 处理作者头像URL
+      const authorAvatar = post.author?.avatarUrl || post.user?.avatar
+      const fullAuthorAvatar = authorAvatar ? 
+        (authorAvatar.startsWith('http') ? authorAvatar : `http://localhost:8080${authorAvatar}`) :
+        '/imagines/members/avatar/member1.jpg'
+      
+      // 处理动态图片URL
+      const imageUrls = post.imageUrls || post.images || []
+      const processedImages = Array.isArray(imageUrls) ? imageUrls.map(url => {
+        // 检查是否已经是完整URL
+        if (url.startsWith('http')) {
+          return url
+        }
+        // 检查是否是相对路径
+        if (url.startsWith('/')) {
+          return `http://localhost:8080${url}`
+        }
+        // 其他情况也加上基础URL
+        return `http://localhost:8080/${url}`
+      }) : []
+      
+      return {
+        id: post.id,
+        content: post.content,
+        images: processedImages,
+        user: {
+          id: post.author?.id || post.user?.id,
+          name: post.author?.name || post.author?.username || post.user?.name,
+          avatar: fullAuthorAvatar
+        },
+        likes: post.likeCount || post.likes || 0,
+        isLiked: post.isLiked || false,
+        createdAt: new Date(post.createdAt),
+        showComments: false,
+        showFullText: false,
+        comments: post.comments || [],
+        commentCount: post.commentCount || (post.comments ? post.comments.length : 0)
+      }
+    })
+    
+    userPosts.value = processedPosts
+    
+    console.log('✅ 用户动态处理完成:', {
+      原始数量: rawPosts.length,
+      处理后数量: processedPosts.length,
+      处理后数据: processedPosts
+    })
+    
+    // 更新统计信息
+    if (userProfile.value.stats) {
+      userProfile.value.stats.postsCount = processedPosts.length
+    }
+    
+  } catch (error) {
+    console.error('❌ 加载用户动态失败:', error)
+    ElMessage.error('加载动态失败')
+  }
+}
+
+// 加载用户相册
+const loadUserPhotos = async () => {
+  try {
+    const userId = parseInt(route.params.id)
+    console.log('🔍 加载用户相册，用户ID:', userId)
+    
+    const photosData = await getUserPhotos(userId)
+    console.log('📨 原始相册数据:', photosData)
+    
+    // 处理相册数据格式
+    let rawPhotos = photosData.content || photosData || []
+    console.log('📋 提取的相册列表:', rawPhotos)
+    
+    // 处理照片URL
+    const processedPhotos = rawPhotos.map(photo => {
+      const photoUrl = photo.photoUrl || photo.url
+      const fullPhotoUrl = photoUrl ? 
+        (photoUrl.startsWith('http') ? photoUrl : `http://localhost:8080${photoUrl}`) :
+        '/imagines/members/avatar/member1.jpg'
+      
+      return {
+        ...photo,
+        photoUrl: fullPhotoUrl,
+        url: fullPhotoUrl
+      }
+    })
+    
+    userProfile.value.photos = processedPhotos
+    
+    console.log('✅ 用户相册处理完成:', {
+      原始数量: rawPhotos.length,
+      处理后数量: processedPhotos.length,
+      处理后数据: processedPhotos
+    })
+    
+  } catch (error) {
+    console.error('❌ 加载用户相册失败:', error)
+    ElMessage.error('加载相册失败')
+  }
+}
+
+const handleMenuSelect = (key) => {
+  console.log('导航菜单被点击，key:', key)
+  activeMenu.value = key
+  if (key === '1') {
+    router.push('/').catch(err => {
+      console.warn('路由跳转失败:', err)
+    })
+  } else if (key === '2-1') {
+    router.push('/team-history').catch(err => {
+      console.warn('路由跳转失败:', err)
+    })
+  } else if (key === '2-2') {
+    router.push('/team-member').catch(err => {
+      console.warn('路由跳转失败:', err)
+    })
+  } else if (key === '3') {
+    router.push('/routes').catch(err => {
+      console.warn('路由跳转失败:', err)
+    })
+  } else if (key === '4') {
+    // 活动动态页面 - 个人主页
+    // 个人主页，但需要获取当前用户ID
+    if (currentUser.value?.id) {
+      router.push(`/user/${currentUser.value.id}`).catch(err => {
+        console.warn('路由跳转失败:', err)
+      })
+    } else {
+      router.push('/community').catch(err => {
+        console.warn('路由跳转失败:', err)
+      })
+    }
+  } else if (key === '5') {
+    router.push('/community').catch(err => {
+      console.warn('路由跳转失败:', err)
+    })
+  } else if (key === '6') {
+    router.push('/contact').catch(err => {
+      console.warn('路由跳转失败:', err)
+    })
+  } else {
+    console.warn('未知的菜单项:', key)
+  }
+}
+
+const goBack = () => {
+  console.log('返回社区按钮被点击')
+  router.push('/community').catch(err => {
+    console.warn('路由跳转失败:', err)
+  })
+}
+
+const goToCommunity = () => {
+  console.log('去社区按钮被点击')
+  router.push('/community').catch(err => {
+    console.warn('路由跳转失败:', err)
+  })
+}
+
+const goToPostDetail = (postId) => {
+  router.push(`/community/post/${postId}`)
+}
+
+const viewRouteDetail = (routeId) => {
+  router.push(`/routes/${routeId}`)
+}
+
+// 编辑用户信息
+const editAvatar = () => {
+  if (!isCurrentUser.value) {
+    ElMessage.warning('只能编辑自己的头像')
+    return
+  }
+  avatarInput.value?.click()
+}
+
+const handleAvatarUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file || !file.type.startsWith('image/')) {
+    ElMessage.error('请选择有效的图片文件')
+    return
+  }
+  
+  // 文件大小限制 (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.error('头像文件大小不能超过5MB')
+    return
+  }
+  
+  // 检查登录状态和token
+  const token = localStorage.getItem('woyun_token')
+  const user = localStorage.getItem('woyun_user')
+  
+  console.log('🔍 上传前检查:', {
+    hasToken: !!token,
+    hasUser: !!user,
+    tokenLength: token ? token.length : 0,
+    tokenPreview: token ? `${token.substring(0, 30)}...` : 'NO_TOKEN',
+    currentUser: currentUser.value
+  })
+  
+  if (!token) {
+    ElMessage.error('未登录或登录已过期，请重新登录')
+    return
+  }
+  
+  let loadingInstance = null
+  
+  try {
+    isUploading.value = true
+    loadingInstance = ElLoading.service({
+      text: '正在上传头像...'
+    })
+    
+    console.log('开始上传头像:', file.name, '大小:', (file.size / 1024 / 1024).toFixed(2) + 'MB')
+    
+    const result = await uploadAvatar(file)
+    
+    console.log('头像上传成功:', result)
+    
+    // 构建完整的图片URL
+    const avatarUrl = result.avatarUrl
+    let fullAvatarUrl = avatarUrl
+    if (!avatarUrl.startsWith('http')) {
+      if (avatarUrl.startsWith('/')) {
+        fullAvatarUrl = `http://localhost:8080${avatarUrl}`
+      } else {
+        fullAvatarUrl = `http://localhost:8080/${avatarUrl}`
+      }
+    }
+    
+    console.log('更新头像 URL:', fullAvatarUrl)
+    
+    // 添加时间戳防止缓存
+    const timestampedUrl = `${fullAvatarUrl}?t=${Date.now()}`
+    
+    // 更新本地显示
+    userProfile.value.avatarUrl = timestampedUrl
+    
+    // 更新全局用户信息
+    updateAuthUserInfo({ avatarUrl: timestampedUrl })
+    
+    ElMessage.success('头像更新成功')
+    
+  } catch (error) {
+    console.error('头像上传失败:', error)
+    ElMessage.error(error.message || '头像上传失败')
+  } finally {
+    // 确保关闭 Loading
+    if (loadingInstance) {
+      loadingInstance.close()
+    }
+    isUploading.value = false
+    // 清空输入框
+    if (event.target) {
+      event.target.value = ''
+    }
+  }
+}
+
+const startEditName = () => {
+  if (!isCurrentUser.value) {
+    ElMessage.warning('只能编辑自己的信息')
+    return
+  }
+  editingName.value = true
+  editNameValue.value = userProfile.value.name
+  nextTick(() => {
+    nameInput.value?.focus()
+  })
+}
+
+const saveName = async () => {
+  if (!editNameValue.value.trim()) {
+    editingName.value = false
+    return
+  }
+  
+  try {
+    const updatedUser = await updateUserInfo({
+      name: editNameValue.value.trim()
+    })
+    
+    userProfile.value.name = updatedUser.name
+    updateAuthUserInfo({ name: updatedUser.name })
+    
+    ElMessage.success('用户名更新成功')
+  } catch (error) {
+    console.error('更新用户名失败:', error)
+    ElMessage.error(error.message || '更新用户名失败')
+  } finally {
+    editingName.value = false
+  }
+}
+
+const startEditTitle = () => {
+  if (!isCurrentUser.value) {
+    ElMessage.warning('只能编辑自己的信息')
+    return
+  }
+  editingTitle.value = true
+  editTitleValue.value = userProfile.value.title
+  nextTick(() => {
+    titleInput.value?.focus()
+  })
+}
+
+const saveTitle = async () => {
+  if (!editTitleValue.value.trim()) {
+    editingTitle.value = false
+    return
+  }
+  
+  try {
+    const updatedUser = await updateUserInfo({
+      title: editTitleValue.value.trim()
+    })
+    
+    userProfile.value.title = updatedUser.title
+    
+    ElMessage.success('队内title更新成功')
+  } catch (error) {
+    console.error('更新队内title失败:', error)
+    ElMessage.error(error.message || '更新title失败')
+  } finally {
+    editingTitle.value = false
+  }
+}
+
+// 相册管理
+const addPhotos = () => {
+  if (!isCurrentUser.value) {
+    ElMessage.warning('只能管理自己的相册')
+    return
+  }
+  photosInput.value?.click()
+}
+
+const handlePhotosUpload = async (event) => {
+  const files = Array.from(event.target.files)
+  if (files.length === 0) return
+  
+  // 验证文件类型和大小
+  const validFiles = files.filter(file => {
+    if (!file.type.startsWith('image/')) {
+      ElMessage.warning(`文件 ${file.name} 不是有效的图片文件`)
+      return false
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      ElMessage.warning(`文件 ${file.name} 大小超过10MB`)
+      return false
+    }
+    return true
+  })
+  
+  if (validFiles.length === 0) {
+    event.target.value = ''
+    return
+  }
+  
+  let loadingInstance = null
+  
+  try {
+    isUploading.value = true
+    loadingInstance = ElLoading.service({
+      text: `正在上传 ${validFiles.length} 张照片...`
+    })
+    
+    console.log('开始上传照片:', validFiles.map(f => f.name))
+    
+    const uploadedPhotos = await uploadPhotos(validFiles)
+    
+    console.log('照片上传成功:', uploadedPhotos)
+    
+    // 处理上传的照片URL
+    const processedPhotos = uploadedPhotos.map(photo => {
+      const photoUrl = photo.photoUrl || photo.url
+      // 检查是否已经是完整URL
+      if (photoUrl.startsWith('http')) {
+        return {
+          ...photo,
+          photoUrl: photoUrl,
+          url: photoUrl
+        }
+      }
+      
+      // 检查是否是相对路径
+      if (photoUrl.startsWith('/')) {
+        const fullPhotoUrl = `http://localhost:8080${photoUrl}`
+        return {
+          ...photo,
+          photoUrl: fullPhotoUrl,
+          url: fullPhotoUrl
+        }
+      }
+      
+      // 其他情况也加上基础URL
+      const fullPhotoUrl = `http://localhost:8080/${photoUrl}`
+      return {
+        ...photo,
+        photoUrl: fullPhotoUrl,
+        url: fullPhotoUrl
+      }
+    })
+    
+    console.log('处理后的照片:', processedPhotos)
+    
+    // 更新本地显示
+    userProfile.value.photos.unshift(...processedPhotos)
+    
+    ElMessage.success(`成功上传 ${uploadedPhotos.length} 张照片`)
+    
+  } catch (error) {
+    console.error('照片上传失败:', error)
+    ElMessage.error(error.message || '照片上传失败')
+  } finally {
+    // 确保关闭 Loading
+    if (loadingInstance) {
+      loadingInstance.close()
+    }
+    isUploading.value = false
+    event.target.value = ''
+  }
+}
+
+const deletePhoto = async (index) => {
+  if (!isCurrentUser.value) {
+    ElMessage.warning('只能删除自己的照片')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm('确定要删除这张照片吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    const photo = userProfile.value.photos[index]
+    
+    if (photo.id) {
+      await deletePhotoAPI(photo.id)
+    }
+    
+    userProfile.value.photos.splice(index, 1)
+    ElMessage.success('照片删除成功')
+    
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除照片失败:', error)
+      ElMessage.error(error.message || '删除照片失败')
+    }
+  }
+}
+
+const viewPhoto = (photo, photos, index) => {
+  const photoUrl = photo.photoUrl || photo.url
+  currentViewImage.value = photoUrl
+  viewerImages.value = photos.map(p => p.photoUrl || p.url)
+  currentImageIndex.value = index
+  showImageViewer.value = true
+}
+
+// 动态管理
+const editPost = (postId) => {
+  // TODO: 实现编辑动态功能
+  console.log('编辑动态:', postId)
+  ElMessage.warning('这个功能我懒得做了，自己删掉重发[愉快]')
+}
+
+const deletePost = (postId) => {
+  if (confirm('真呢要删掉噶？')) {
+    const index = userPosts.value.findIndex(p => p.id === postId)
+    if (index > -1) {
+      userPosts.value.splice(index, 1)
+      userProfile.value.stats.postsCount--
+    }
+    // TODO: 调用后端API删除动态
+    console.log('删除动态:', postId)
+  }
+}
+
+const toggleLike = (postId) => {
+  const post = userPosts.value.find(p => p.id === postId)
+  if (post) {
+    if (post.isLiked) {
+      post.likes--
+      post.isLiked = false
+    } else {
+      post.likes++
+      post.isLiked = true
+    }
+  }
+  // TODO: 调用后端API更新点赞状态
+}
+
+const formatTime = (date) => {
+  const now = new Date()
+  const diff = now - date
+  const minutes = Math.floor(diff / (1000 * 60))
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  
+  if (minutes < 60) {
+    return `${minutes}分钟前`
+  } else if (hours < 24) {
+    return `${hours}小时前`
+  } else {
+    return `${days}天前`
+  }
+}
+
+const getTruncatedText = (text) => {
+  return text.length > 100 ? text.substring(0, 100) : text
+}
+
+const toggleFullText = (postId) => {
+  const post = userPosts.value.find(p => p.id === postId)
+  if (post) {
+    post.showFullText = !post.showFullText
+  }
+}
+
+const getDifficultyText = (difficulty) => {
+  const map = {
+    easy: '简单',
+    medium: '中等',
+    hard: '困难'
+  }
+  return map[difficulty] || difficulty
+}
+
+const getTypeText = (type) => {
+  const map = {
+    mountain: '山地',
+    road: '公路',
+    city: '城市',
+    scenic: '风景'
+  }
+  return map[type] || type
+}
+
+// 滚动动画观察器
+const observeElements = () => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('fade-in-active')
+        }
+      })
+    },
+    {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    }
+  )
+
+  // 观察各个区域
+  const elementsToObserve = [
+    userInfoRef.value,
+    galleryRef.value,
+    postsRef.value,
+    routesRef.value  // 添加路线区域
+  ]
+  
+  elementsToObserve.forEach((el) => {
+    if (el) {
+      observer.observe(el)
+    }
+  })
+
+  // 观察动态卡片
+  Object.values(postRefs).forEach((el) => {
+    if (el) {
+      observer.observe(el)
+    }
+  })
+}
+
+// 删除路线
+const removeRoute = (routeId) => {
+  deleteRouteConfirm(routeId)
+}
+
+// 生命周期
+onMounted(async () => {
+  // 背景渐显动画
+  if (backgroundRef.value) {
+    backgroundRef.value.classList.add('background-fade-in')
+  }
+  
+  // 延迟初始化动画观察器
+  setTimeout(() => {
+    observeElements()
+  }, 100)
+  
+  // 加载用户数据
+  await loadUserProfile()
+  // 并行加载用户相册、动态和路线数据，但分别处理错误，避免一个失败影响其他
+  await Promise.all([
+    loadUserPhotos().catch(err => {
+      console.error('加载用户相册失败:', err)
+    }),
+    loadUserPosts().catch(err => {
+      console.error('加载用户动态失败:', err)
+    }),
+    loadUserRoutes().catch(err => {
+      console.error('加载用户路线失败:', err)
+    })
+  ])
+  
+  console.log('个人主页加载完成')
+})
+</script>

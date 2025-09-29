@@ -1,0 +1,196 @@
+/* 顶部导航样式 - 统一所有页面的header样式 */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background-color: #122031; /* 统一背景色为蓝色 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+  height: 60px;
+}
+
+.header-hidden {
+  transform: translateY(-100%);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  margin-left: 0; /* 确保标题在最左边 */
+}
+
+.header .title img {
+  width: 40px;
+  height: 40px;
+  margin-right: 5px;
+}
+
+.header .title-text {
+  font-weight: bold;
+  font-size: 20px; /* 减小字体大小 */
+  line-height: 1;
+  color: white;
+  /* 防止文字换行 */
+}
+
+.header .divider {
+  color: white;
+}
+
+.header .el-menu-item {
+  font-size: 13px !important; /* 减小菜单项字体大小 */
+  background-color: #122031 !important; /* 使菜单项背景与header背景一致 */
+  color: white !important; /* 确保文字颜色为白色 */
+}
+
+/* 一级菜单项hover效果 */
+.header .el-menu-item:hover {
+  background-color: #1e3a5f !important; /* 深蓝色hover背景 */
+  color: white !important;
+}
+
+.header .el-sub-menu .el-sub-menu__title {
+  font-size: 13px !important; /* 减小子菜单标题字体大小 */
+  background-color: #122031 !important; /* 使子菜单标题背景与header背景一致 */
+  color: white !important;
+}
+
+/* 一级子菜单标题hover效果 */
+.header .el-sub-menu .el-sub-menu__title:hover {
+  background-color: #1e3a5f !important; /* 深蓝色hover背景 */
+  color: white !important;
+}
+
+
+
+/* 强制移除二级菜单的所有间距 - 使用负margin抵消默认间距 */
+.header .el-sub-menu .el-menu {
+  margin: -5px 0 0 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* 移除二级菜单弹出层的间距 */
+.header .el-sub-menu .el-menu--popup {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translateY(-5px) !important;
+}
+
+/* 移除二级菜单容器的默认间距 */
+.header .el-sub-menu__popper {
+  margin-top: -5px !important;
+  padding: 0 !important;
+}
+
+.header .el-sub-menu__popper .el-menu {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 全局覆盖Element Plus的二级菜单样式 */
+.el-popper.is-pure {
+  padding: 0 !important;
+}
+
+.el-popper.is-pure .el-menu {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 强制覆盖所有菜单项样式 */
+.el-menu-item,
+.el-sub-menu .el-menu-item,
+.el-popper .el-menu-item {
+  color: white !important;
+  background-color: #122031 !important;
+}
+
+/* 二级菜单下拉项样式 - 使用更高优先级的选择器 */
+.header .el-sub-menu .el-menu-item,
+.el-popper .el-menu .el-menu-item,
+.el-sub-menu__popper .el-menu-item {
+  background-color: #122031 !important;
+  color: white !important; /* 设置文字颜色为白色 */
+  margin: 0 !important;
+  padding: 12px 20px !important;
+  line-height: 1 !important;
+  height: auto !important;
+  border: none !important;
+  font-size: 13px !important; /* 设置二级菜单项字体大小为13px */
+}
+
+.header .el-sub-menu .el-menu-item:hover,
+.el-popper .el-menu .el-menu-item:hover,
+.el-sub-menu__popper .el-menu-item:hover {
+  background-color: #1e3a5f !important; /* 深蓝色hover背景，保持字体可见 */
+  color: white !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .header {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+  
+  .header .title img {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .header .title-text {
+    font-size: 18px;
+  }
+  
+  .header .divider {
+    color: white;
+  }
+  
+  .header .el-menu-item {
+    font-size: 14px !important;
+    background-color: #122031 !important;
+    color: white !important;
+  }
+  
+  .header .el-sub-menu .el-sub-menu__title {
+    font-size: 14px !important;
+    background-color: #122031 !important;
+    color: white !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header .title-text {
+    font-size: 16px;
+  }
+  
+  .header .divider {
+    color: white;
+  }
+  
+  .header .el-menu-item {
+    font-size: 12px !important;
+    background-color: #122031 !important;
+    color: white !important;
+  }
+  
+  .header .el-sub-menu .el-sub-menu__title {
+    font-size: 12px !important;
+    background-color: #122031 !important;
+    color: white !important;
+  }
+}
