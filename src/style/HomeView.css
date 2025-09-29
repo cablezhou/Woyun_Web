@@ -318,7 +318,8 @@ body:has(.home) {
 
 /* Join Us Section */
 .join-section-new {
-  padding: 0;
+  padding-top: 20px;
+  padding-bottom: 20px;
   text-align: center;
   background-image: url('/imagines/dibu1.jpg');
   background-size: 100%;

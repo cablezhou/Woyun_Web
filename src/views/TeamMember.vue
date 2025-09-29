@@ -30,7 +30,7 @@
       <div class="hero-background">
         <div class="hero-overlay"></div>
         <video autoplay muted loop class="hero-video">
-          <source src="https://cable-website-video.oss-cn-beijing.aliyuncs.com/sample.mp4" type="video/mp4">
+          <source src="https://cable-website-video.oss-cn-beijing.aliyuncs.com/9%E6%9C%8829%E6%97%A5.mp4" type="video/mp4">
         </video>
       </div>
       <div class="hero-content">

@@ -29,7 +29,7 @@
     <!-- Hero Section -->
     <div class="hero-section" ref="heroSectionRef">
       <video autoplay muted loop class="hero-video">
-        <source src="https://cable-website-video.oss-cn-beijing.aliyuncs.com/sample.mp4" type="video/mp4">
+        <source src="https://cable-website-video.oss-cn-beijing.aliyuncs.com/2.mp4" type="video/mp4">
         您的浏览器不支持视频播放。
       </video>
       <div class="hero-content">
