@@ -253,6 +253,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
 // Replace global routes API imports with direct http client for page-specific override
 import { http } from '../api/axios.js'
@@ -291,6 +292,9 @@ const activeMenu = ref('3')
 const showRouteForm = ref(false)
 const isSubmitting = ref(false)
 const isLoading = ref(false)
+
+// 初始化router
+const router = useRouter()
 
 // 表单引用
 const routeFormRef = ref(null)
@@ -387,19 +391,19 @@ const handleMenuSelect = (key) => {
   // 路由跳转逻辑
   if (key === '1') {
     // 首页
-    window.location.href = '/'
+    router.push('/')
   } else if (key === '2-2') {
     // 车队成员页面
-    window.location.href = '/team-member'
+    router.push('/team-member')
   } else if (key === '4') {
     // 活动动态页面
     ElMessage.info('这个页面认不得咋个做')
   } else if (key === '5') {
     // 卧云社区页面
-    window.location.href = '/community'
+    router.push('/community')
   } else if (key === '6') {
     // 联系我们页面
-    window.location.href = '/contact'
+    router.push('/contact')
   }
 }
 
@@ -538,7 +542,7 @@ const filterRoutes = () => {
 // 查看路线详情
 const viewRouteDetail = (routeId) => {
   console.log('点击进入路线详情，路线ID:', routeId)
-  window.location.href = `/routes/${routeId}`
+  router.push(`/routes/${routeId}`)
 }
 
 // 下载GPX文件

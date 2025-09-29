@@ -187,11 +187,11 @@ const backgroundRef = ref(null)
 const handleMenuSelect = (key) => {
   activeMenu.value = key
   if (key === '1') {
-    window.location.href = '/'
+    router.push('/')
   } else if (key === '2-2') {
-    window.location.href = '/team-member'
+    router.push('/team-member')
   } else if (key === '5') {
-    window.location.href = '/community'
+    router.push('/community')
   }
 }
 

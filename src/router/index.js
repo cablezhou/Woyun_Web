@@ -45,6 +45,12 @@ const router = createRouter({
       name: 'routeDetail',
       component: RouteDetail
     },
+    // 404 catch-all route - must be last
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notFound',
+      redirect: '/'
+    }
   ]
 })
 

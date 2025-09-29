@@ -237,6 +237,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import '../style/TeamMember.css';
 import '../style/header.css';
 
@@ -266,6 +267,9 @@ const selectedMember = ref<Member | null>(null);
 const memberRefs = reactive<Record<string, HTMLElement | null>>({});
 const showHeader = ref(false); // 控制header显示隐藏
 let lastScrollY = 0; // 记录上次滚动位置
+
+// 初始化router
+const router = useRouter();
 
 // 成员数据
 const members = ref<Member[]>([
@@ -314,13 +318,13 @@ const members = ref<Member[]>([
 const handleMenuSelect = (key: string) => {
   if (key === '1') {
     // 跳转到首页
-    window.location.href = '/';
+    router.push('/');
   } else if (key === '3') {
     // 骑行路线页面
-    window.location.href = '/routes';
+    router.push('/routes');
   } else if (key === '5') {
     // 卧云社区页面
-    window.location.href = '/community';
+    router.push('/community');
   }
   // 其他菜单项的处理逻辑可以在这里添加
 };
