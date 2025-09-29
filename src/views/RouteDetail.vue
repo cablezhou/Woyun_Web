@@ -712,6 +712,10 @@ onMounted(async () => {
       console.warn('获取路线点位数据失败，使用默认数据:', pointsError)
     }
     
+    // 处理创建者头像
+    const creatorAvatarUrl = getFullImageUrl(fetchedRouteData.creator?.avatarUrl || fetchedRouteData.creator?.avatar)
+    const processedCreatorAvatar = await loadImageWithHeaders(creatorAvatarUrl)
+    
     // 处理路线数据格式
     routeData.value = {
       id: fetchedRouteData.id,
@@ -725,8 +729,8 @@ onMounted(async () => {
       creator: {
         id: fetchedRouteData.creator?.id,
         name: fetchedRouteData.creator?.name || '未知用户',
-        // 使用统一的图片URL处理函数
-        avatar: getFullImageUrl(fetchedRouteData.creator?.avatarUrl || fetchedRouteData.creator?.avatar)
+        // 使用新的图片加载工具处理头像
+        avatar: processedCreatorAvatar
       },
       createdAt: new Date(fetchedRouteData.createdAt),
       stats: {

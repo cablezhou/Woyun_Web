@@ -260,9 +260,12 @@ const loadComments = async (postId) => {
     
     if (post.value) {
       // 创建一个可复用的辅助函数，用于处理任意层级的评论
-      const processComment = (comment) => {
+      const processComment = async (comment) => {
         // 使用统一的图片URL处理函数
         const fullAvatarUrl = getFullImageUrl(comment.author?.avatarUrl);
+        
+        // 使用新的图片加载工具处理头像
+        const processedAvatar = await loadImageWithHeaders(fullAvatarUrl);
         
         return {
           id: comment.id,
@@ -270,16 +273,16 @@ const loadComments = async (postId) => {
           user: {
             id: comment.author?.id,
             name: comment.author?.name || comment.author?.username,
-            avatar: fullAvatarUrl
+            avatar: processedAvatar
           },
           createdAt: new Date(comment.createdAt),
           showReply: false,
-          replies: (comment.replies || []).map(processComment) // 递归处理回复
+          replies: await Promise.all((comment.replies || []).map(processComment)) // 递归处理回复
         };
       };
       
       // 处理评论列表
-      const processedComments = (responseData.content || responseData || []).map(processComment);
+      const processedComments = await Promise.all((responseData.content || responseData || []).map(processComment));
       
       post.value.comments = processedComments;
       post.value.commentCount = processedComments.length;
@@ -329,13 +332,16 @@ const addComment = async () => {
     // 处理评论数据 - 使用统一的图片URL处理函数
     const fullAvatarUrl = getFullImageUrl(newComment.author?.avatarUrl)
     
+    // 使用新的图片加载工具处理头像
+    const processedAvatar = await loadImageWithHeaders(fullAvatarUrl)
+    
     const processedComment = {
       id: newComment.id,
       content: newComment.content,
       user: {
         id: newComment.author?.id,
         name: newComment.author?.name || newComment.author?.username,
-        avatar: fullAvatarUrl
+        avatar: processedAvatar
       },
       createdAt: new Date(newComment.createdAt),
       showReply: false,
