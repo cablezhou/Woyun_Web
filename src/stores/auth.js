@@ -5,11 +5,13 @@
 import { ref, computed, watchEffect } from 'vue'
 import { getCurrentUser, isLoggedIn as checkLoggedIn } from '../api/auth.js'
 import { getFullImageUrl } from '../config/index.js'
+import { loadImageWithHeaders } from '../utils/imageLoader.js'
 
 // 全局状态
 const isLoggedIn = ref(false)
 const currentUser = ref(null)
 const authLoading = ref(true)
+const processedUserAvatar = ref('')
 
 // 计算属性
 const userDisplayName = computed(() => {
@@ -17,22 +19,42 @@ const userDisplayName = computed(() => {
 })
 
 const userAvatar = computed(() => {
-  const avatarUrl = currentUser.value?.avatarUrl
-  return getFullImageUrl(avatarUrl)
+  return processedUserAvatar.value || getFullImageUrl(currentUser.value?.avatarUrl)
 })
+
+// 处理用户头像的异步函数
+const processUserAvatar = async () => {
+  if (currentUser.value?.avatarUrl) {
+    try {
+      const fullAvatarUrl = getFullImageUrl(currentUser.value.avatarUrl)
+      const processedAvatar = await loadImageWithHeaders(fullAvatarUrl)
+      processedUserAvatar.value = processedAvatar
+    } catch (error) {
+      console.error('处理用户头像失败:', error)
+      processedUserAvatar.value = getFullImageUrl(currentUser.value.avatarUrl)
+    }
+  } else {
+    processedUserAvatar.value = ''
+  }
+}
 
 const isAdmin = computed(() => {
   return currentUser.value?.role === 'admin'
 })
 
 // 初始化认证状态
-const initAuthState = () => {
+const initAuthState = async () => {
   try {
     const loggedIn = checkLoggedIn()
     const user = getCurrentUser()
     
     isLoggedIn.value = loggedIn
     currentUser.value = user
+    
+    // 处理用户头像
+    if (user?.avatarUrl) {
+      await processUserAvatar()
+    }
     
     if (import.meta.env.DEV) {
       console.log('🔐 认证状态初始化:', {
@@ -44,15 +66,23 @@ const initAuthState = () => {
     console.error('认证状态初始化失败:', error)
     isLoggedIn.value = false
     currentUser.value = null
+    processedUserAvatar.value = ''
   } finally {
     authLoading.value = false
   }
 }
 
 // 更新认证状态
-const updateAuthState = (loginStatus, userInfo = null) => {
+const updateAuthState = async (loginStatus, userInfo = null) => {
   isLoggedIn.value = loginStatus
   currentUser.value = userInfo
+  
+  // 处理用户头像
+  if (userInfo?.avatarUrl) {
+    await processUserAvatar()
+  } else {
+    processedUserAvatar.value = ''
+  }
   
   if (import.meta.env.DEV) {
     console.log('🔄 认证状态更新:', {
@@ -66,6 +96,7 @@ const updateAuthState = (loginStatus, userInfo = null) => {
 const clearAuthState = () => {
   isLoggedIn.value = false
   currentUser.value = null
+  processedUserAvatar.value = ''
   
   if (import.meta.env.DEV) {
     console.log('🧹 认证状态已清除')
@@ -73,9 +104,14 @@ const clearAuthState = () => {
 }
 
 // 更新用户信息
-const updateUserInfo = (userInfo) => {
+const updateUserInfo = async (userInfo) => {
   if (currentUser.value) {
     currentUser.value = { ...currentUser.value, ...userInfo }
+    
+    // 如果更新了头像，重新处理
+    if (userInfo.avatarUrl) {
+      await processUserAvatar()
+    }
     
     // 同步更新localStorage
     try {

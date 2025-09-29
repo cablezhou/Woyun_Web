@@ -916,9 +916,12 @@ const loadPostComments = async (postId) => {
       const rawData = commentsData.data || commentsData
       const commentsList = rawData.content || rawData || []
       
-      const processedComments = commentsList.map(comment => {
+      const processedComments = await Promise.all(commentsList.map(async comment => {
         // 使用统一的图片URL处理函数
         const fullAvatarUrl = getFullImageUrl(comment.author?.avatarUrl)
+        
+        // 使用新的图片加载工具处理头像
+        const processedAvatar = await loadImageWithHeaders(fullAvatarUrl)
         
         return {
           id: comment.id,
@@ -926,13 +929,13 @@ const loadPostComments = async (postId) => {
           user: {
             id: comment.author?.id,
             name: comment.author?.name || comment.author?.username,
-            avatar: fullAvatarUrl
+            avatar: processedAvatar
           },
           createdAt: new Date(comment.createdAt),
           showReply: false,
           replies: comment.replies || []
         }
-      })
+      }))
       
       post.comments = processedComments
     }
@@ -957,13 +960,16 @@ const addComment = async (postId) => {
       // 处理评论数据 - 使用统一的图片URL处理函数
       const fullAvatarUrl = getFullImageUrl(newComment.author?.avatarUrl)
       
+      // 使用新的图片加载工具处理头像
+      const processedAvatar = await loadImageWithHeaders(fullAvatarUrl)
+      
       const processedComment = {
         id: newComment.id,
         content: newComment.content,
         user: {
           id: newComment.author?.id,
           name: newComment.author?.name || newComment.author?.username,
-          avatar: fullAvatarUrl
+          avatar: processedAvatar
         },
         createdAt: new Date(newComment.createdAt),
         showReply: false,
