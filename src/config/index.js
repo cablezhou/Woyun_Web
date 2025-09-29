@@ -30,7 +30,7 @@ console.log('🗺️ 高德地图配置:', AMAP_CONFIG)
 // API配置
 export const API_CONFIG = {
   // 开发环境使用相对路径，交给Vite代理处理
-  baseURL: import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'https://asking-delivery-newspapers-firms.trycloudflare.com'),
+  baseURL: import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'https://41a7149c27b7.ngrok-free.app'),
   timeout: 10000,
   // 请求重试配置
   retry: {
@@ -52,8 +52,8 @@ export const getFullImageUrl = (imageUrl) => {
   
   // 获取当前的API基地址
   const baseURL = import.meta.env.DEV ? 
-    'https://asking-delivery-newspapers-firms.trycloudflare.com' : 
-    (import.meta.env.VITE_API_BASE_URL || 'https://asking-delivery-newspapers-firms.trycloudflare.com')
+    'https://41a7149c27b7.ngrok-free.app' : 
+    (import.meta.env.VITE_API_BASE_URL || 'https://41a7149c27b7.ngrok-free.app')
   
   // 处理相对路径
   if (imageUrl.startsWith('/')) {

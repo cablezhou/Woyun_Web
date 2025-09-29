@@ -29,7 +29,7 @@
     <div class="hero-section">
       <div class="hero-background">
         <div class="hero-overlay"></div>
-        <video autoplay muted loop class="hero-video">
+        <video autoplay muted loop  playsinline class="hero-video"> <!-- 新增 playsinline 属性，该属性非常重要，ios端不加就播放不了。作用是阻止视频全屏播放（因为这是背景视频） -->
           <source src="https://cable-website-video.oss-cn-beijing.aliyuncs.com/9%E6%9C%8829%E6%97%A5.mp4" type="video/mp4">
         </video>
       </div>
