@@ -464,23 +464,60 @@ const routeEditFormRules = {
 }
 
 // 计算属性：处理头像 URL
-const computedAvatarUrl = computed(() => {
-  return getFullImageUrl(userProfile.value.avatarUrl)
-})
+const computedAvatarUrl = ref('')
+
+// 处理用户头像显示
+const processUserAvatar = async () => {
+  if (userProfile.value.avatarUrl) {
+    try {
+      const fullAvatarUrl = getFullImageUrl(userProfile.value.avatarUrl)
+      const processedAvatar = await loadImageWithHeaders(fullAvatarUrl)
+      computedAvatarUrl.value = processedAvatar
+    } catch (error) {
+      console.error('处理用户头像失败:', error)
+      computedAvatarUrl.value = getFullImageUrl(userProfile.value.avatarUrl)
+    }
+  }
+}
 
 // 计算属性：处理相册照片 URL
-const computedPhotos = computed(() => {
-  return userProfile.value.photos.map(photo => {
-    const photoUrl = photo.photoUrl || photo.url
-    const fullUrl = getFullImageUrl(photoUrl)
-    
-    return {
-      ...photo,
-      photoUrl: fullUrl,
-      url: fullUrl
+const computedPhotos = ref([])
+
+// 处理用户相册照片显示
+const processUserPhotos = async () => {
+  if (userProfile.value.photos && userProfile.value.photos.length > 0) {
+    try {
+      const processedPhotos = []
+      for (const photo of userProfile.value.photos) {
+        const photoUrl = photo.photoUrl || photo.url
+        const fullUrl = getFullImageUrl(photoUrl)
+        const processedUrl = await loadImageWithHeaders(fullUrl)
+        
+        processedPhotos.push({
+          ...photo,
+          photoUrl: processedUrl,
+          url: processedUrl
+        })
+      }
+      computedPhotos.value = processedPhotos
+    } catch (error) {
+      console.error('处理用户相册失败:', error)
+      // 降级处理
+      computedPhotos.value = userProfile.value.photos.map(photo => {
+        const photoUrl = photo.photoUrl || photo.url
+        const fullUrl = getFullImageUrl(photoUrl)
+        
+        return {
+          ...photo,
+          photoUrl: fullUrl,
+          url: fullUrl
+        }
+      })
     }
-  })
-})
+  } else {
+    computedPhotos.value = []
+  }
+}
 
 // DOM引用
 const backgroundRef = ref(null)
@@ -544,6 +581,9 @@ const loadUserProfile = async () => {
     
     console.log('用户信息加载成功:', userProfile.value)
     
+    // 处理用户头像
+    await processUserAvatar()
+    
   } catch (error) {
     console.error('加载用户信息失败:', error)
     ElMessage.error('加载用户信息失败')
@@ -574,20 +614,34 @@ const loadUserRoutes = async () => {
     console.log('📋 提取的路线列表:', rawRoutes)
     
     // 处理路线数据格式 - 使用后端生成的缩略图
-    const processedRoutes = rawRoutes.map(route => {
+    const processedRoutes = []
+    
+    for (const route of rawRoutes) {
       // 处理缩略图URL，优先使用thumbnailUrl（后端生成的缩略图）
       let thumbnail = '/imagines/Background2.jpg'
       if (route.thumbnailUrl) {
-        // 使用后端生成的缩略图 - 使用统一的图片URL处理函数
-        thumbnail = getFullImageUrl(route.thumbnailUrl)
+        // 使用后端生成的缩略图 - 使用loadImageWithHeaders处理
+        const fullThumbnailUrl = getFullImageUrl(route.thumbnailUrl)
+        try {
+          thumbnail = await loadImageWithHeaders(fullThumbnailUrl)
+        } catch (error) {
+          console.error('处理路线缩略图失败:', error)
+          thumbnail = fullThumbnailUrl
+        }
       } else if (route.thumbnail) {
-        // 兼容旧的thumbnail字段 - 使用统一的图片URL处理函数
-        thumbnail = getFullImageUrl(route.thumbnail)
+        // 兼容旧的thumbnail字段 - 使用loadImageWithHeaders处理
+        const fullThumbnailUrl = getFullImageUrl(route.thumbnail)
+        try {
+          thumbnail = await loadImageWithHeaders(fullThumbnailUrl)
+        } catch (error) {
+          console.error('处理路线缩略图失败:', error)
+          thumbnail = fullThumbnailUrl
+        }
       }
       
       console.log('🖼️ 路线缩略图URL:', thumbnail)
       
-      return {
+      processedRoutes.push({
         id: route.id,
         title: route.title,
         description: route.description,
@@ -599,8 +653,8 @@ const loadUserRoutes = async () => {
         thumbnail: thumbnail,
         gpxFileUrl: route.gpxFileUrl || '', // 添加gpxFileUrl字段
         createdAt: new Date(route.createdAt)
-      }
-    })
+      })
+    }
     
     userRoutes.value = processedRoutes
     
@@ -728,22 +782,38 @@ const loadUserPosts = async () => {
     console.log('📋 提取的动态列表:', rawPosts)
     
     // 处理动态数据格式，确保与社区页面一致
-    const processedPosts = rawPosts.map(post => {
-      // 处理作者头像URL - 使用统一的图片URL处理函数
-        const fullAuthorAvatar = getFullImageUrl(post.author?.avatarUrl || post.user?.avatar)
+    const processedPosts = []
+    
+    for (const post of rawPosts) {
+      // 处理作者头像URL - 使用loadImageWithHeaders处理
+      const fullAuthorAvatar = getFullImageUrl(post.author?.avatarUrl || post.user?.avatar)
+      let processedAvatar = fullAuthorAvatar
+      
+      try {
+        processedAvatar = await loadImageWithHeaders(fullAuthorAvatar)
+      } catch (error) {
+        console.error('处理动态作者头像失败:', error)
+      }
       
       // 处理动态图片URL
       const imageUrls = post.imageUrls || post.images || []
       const processedImages = processImageUrls(imageUrls)
+      let processedImageUrls = processedImages
       
-      return {
+      try {
+        processedImageUrls = await loadImagesWithHeaders(processedImages)
+      } catch (error) {
+        console.error('处理动态图片失败:', error)
+      }
+      
+      processedPosts.push({
         id: post.id,
         content: post.content,
-        images: processedImages,
+        images: processedImageUrls,
         user: {
           id: post.author?.id || post.user?.id,
           name: post.author?.name || post.author?.username || post.user?.name,
-          avatar: fullAuthorAvatar
+          avatar: processedAvatar
         },
         likes: post.likeCount || post.likes || 0,
         isLiked: post.isLiked || false,
@@ -752,8 +822,8 @@ const loadUserPosts = async () => {
         showFullText: false,
         comments: post.comments || [],
         commentCount: post.commentCount || (post.comments ? post.comments.length : 0)
-      }
-    })
+      })
+    }
     
     userPosts.value = processedPosts
     
@@ -799,7 +869,11 @@ const loadUserPhotos = async () => {
       }
     })
     
+    // 更新用户资料中的相册数据
     userProfile.value.photos = processedPhotos
+    
+    // 处理用户相册照片显示
+    await processUserPhotos()
     
     console.log('✅ 用户相册处理完成:', {
       原始数量: rawPhotos.length,
