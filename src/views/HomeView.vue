@@ -228,12 +228,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from 'vue-router'; // 步骤一：导入 useRouter
 import '../style/HomeView.css';
 import '../style/header.css';
 import { ElCarousel, ElCarouselItem, ElButton, ElMessage } from 'element-plus';
 import 'element-plus/es/components/carousel/style/css';
 import 'element-plus/es/components/carousel-item/style/css';
 import 'element-plus/es/components/button/style/css';
+
+const router = useRouter(); // 步骤二：获取 router 实例
 
 const activeMenu = ref("1");
 const isHeaderVisible = ref(true);
@@ -248,9 +251,6 @@ const brandRef = ref<HTMLElement | null>(null);
 const videoElement = ref<HTMLVideoElement | null>(null);
 const philosophyRef = ref<HTMLElement | null>(null);
 const joinRef = ref<HTMLElement | null>(null);
-
-
-
 const highlights = ref([
   {
     img:'Woyun_Web/imagines/carousel/new1.jpg',
@@ -268,7 +268,6 @@ const highlights = ref([
     description: '远离喧嚣，拥抱大自然的怀抱'
   }
 ]);
-
 const routes = ref([
   {
     img: import.meta.env.BASE_URL + 'imagines/history/c1.jpg',
@@ -291,7 +290,6 @@ const routes = ref([
     description: '连接城市之间，开启长途骑行'
   }
 ]);
-
 const philosophies = ref([
   {
     img: import.meta.env.BASE_URL + 'imagines/philosophy/微信图片_20250919145702_94_51.jpg',
@@ -314,7 +312,6 @@ const philosophies = ref([
     description: '不断突破自己的极限，在骑行中发现更强大的自己。'
   }
 ]);
-
 const activities = ref([
   {
     id: 1,
@@ -338,6 +335,7 @@ const activities = ref([
     image: import.meta.env.BASE_URL + 'imagines/3.jpg'
   },
   {
+  
     id: 4,
     name: '"阳康"后首次换滇',
     date: '2023年1月',
@@ -360,16 +358,19 @@ const activities = ref([
   }
 ]);
 
+// 步骤三：修改 handleMenuSelect 函数
 const handleMenuSelect = (key: string) => {
   activeMenu.value = key;
   // 路由跳转逻辑
-  if (key === '2-2') {
+  if (key === '1') {
+    router.push('/');
+  } else if (key === '2-2') {
     // 车队成员页面
-    window.location.href = '/team-member';
+    router.push('/team-member');
   } else if (key === '3') {
     // 骑行路线页面
-    window.location.href = '/routes';
-  }else if (key === '4') {
+    router.push('/routes');
+  } else if (key === '4') {
     //提示待开发
     ElMessage({
       message: '待开发ing',
@@ -377,7 +378,7 @@ const handleMenuSelect = (key: string) => {
     });
   } else if (key === '5') {
     // 卧云社区页面
-    window.location.href = '/community';
+    router.push('/community');
   }
 };
 
@@ -392,7 +393,6 @@ const handleScroll = () => {
   }
   lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
 };
-
 // 满屏动画观察器
 const observeElements = () => {
   const observer = new IntersectionObserver(
@@ -409,7 +409,6 @@ const observeElements = () => {
       rootMargin: '0px 0px -50px 0px'
     }
   );
-
   // 观察所有需要动画的元素
   const elementsToObserve = [
     introRef.value,
@@ -419,7 +418,6 @@ const observeElements = () => {
     philosophyRef.value,
     joinRef.value
   ];
-
   elementsToObserve.forEach((el) => {
     if (el) {
       observer.observe(el);
@@ -434,7 +432,6 @@ onMounted(() => {
     observeElements();
   }, 100);
 });
-
 onUnmounted(() => {
   document.body.removeEventListener('scroll', handleScroll);
 });
