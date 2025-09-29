@@ -33,7 +33,7 @@
         您的浏览器不支持视频播放。
       </video>
       <div class="hero-content">
-        <h1 class="hero-slogan">哈哈哈哈哈行者至千里，卧云看浮沉</h1>
+        <h1 class="hero-slogan">行者至千里，卧云看浮沉</h1>
         <p class="hero-subtitle">用车轮丈量世界，用心感受生活</p>
       </div>
     </div>

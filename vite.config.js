@@ -11,6 +11,15 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  publicDir: 'public',
+  build: {
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        404: './404.html'
+      }
+    }
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
