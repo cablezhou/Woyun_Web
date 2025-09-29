@@ -260,6 +260,7 @@ import { http } from '../api/axios.js'
 import { testStaticMapAPI } from '../utils/mapUtils.js'
 import '../style/header.css';
 import { API_CONFIG, getFullImageUrl } from '../config/index.js'
+import { loadImageWithHeaders } from '../utils/imageLoader.js'
 
 // 获取API基地址
 const API_BASE = API_CONFIG.baseURL
@@ -672,7 +673,7 @@ const loadRoutes = async () => {
     const responseData = response.data || response
     let rawRoutes = responseData.content || responseData || []
     
-    const processedRoutes = rawRoutes.map((route) => {
+    const processedRoutes = rawRoutes.map(async (route) => {
       console.log('🔍 处理路线:', route)
       
       const thumbnail = getFullImageUrl(route.thumbnailUrl || route.thumbnail)
@@ -681,6 +682,10 @@ const loadRoutes = async () => {
       console.log('📄 路线gpxFileUrl:', route.gpxFileUrl)
       
       const creatorAvatar = getFullImageUrl(route.creator?.avatarUrl || route.creator?.avatar)
+      
+      // 使用新的图片加载工具处理缩略图
+      const processedThumbnail = await loadImageWithHeaders(thumbnail)
+      const processedCreatorAvatar = await loadImageWithHeaders(creatorAvatar)
       
       return {
         id: route.id,
@@ -691,7 +696,7 @@ const loadRoutes = async () => {
         estimatedTime: route.estimatedTime || '未知',
         difficulty: route.difficulty || 'medium',
         type: route.routeType || route.type || 'scenic',
-        thumbnail: thumbnail,
+        thumbnail: processedThumbnail,
         gpxFileUrl: route.gpxFileUrl || '',
         isGeneratingThumbnail: false,
         gpxFile: route.gpxFile || '',
@@ -699,7 +704,7 @@ const loadRoutes = async () => {
         creator: {
           id: route.creator?.id,
           name: route.creator?.name || route.creator?.username || '未知用户',
-          avatar: creatorAvatar
+          avatar: processedCreatorAvatar
         },
         stats: {
           completions: route.stats?.completions || 0,
@@ -709,7 +714,7 @@ const loadRoutes = async () => {
       }
     })
     
-    routes.value = processedRoutes
+    routes.value = await Promise.all(processedRoutes)
     console.log('✅ 路线列表加载完成，共', processedRoutes.length, '条路线')
     console.log('📋 路线数据:', processedRoutes)
     

@@ -166,6 +166,7 @@ import { ElMessage, ElLoading } from 'element-plus'
 import CommentItem from '../component/CommentItem.vue'
 import '../style/header.css'
 import { getFullImageUrl, processImageUrls } from '../config/index.js'
+import { loadImageWithHeaders, loadImagesWithHeaders } from '../utils/imageLoader.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -217,14 +218,18 @@ const loadPostDetail = async (postId) => {
     const fullAuthorAvatar = getFullImageUrl(postData.author?.avatarUrl)
     const processedImages = processImageUrls(postData.imageUrls || [])
     
+    // 使用新的图片加载工具处理头像和图片
+    const processedAvatar = await loadImageWithHeaders(fullAuthorAvatar)
+    const processedImageUrls = await loadImagesWithHeaders(processedImages)
+    
     post.value = {
       id: postData.id,
       content: postData.content,
-      images: processedImages,
+      images: processedImageUrls,
       user: {
         id: postData.author?.id,
         name: postData.author?.name || postData.author?.username,
-        avatar: fullAuthorAvatar
+        avatar: processedAvatar
       },
       likes: postData.likeCount || 0,
       isLiked: postData.isLiked || false,

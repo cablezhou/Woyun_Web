@@ -398,6 +398,7 @@ import { getUserRoutes, updateRoute, deleteRoute as deleteRouteAPI } from '../ap
 import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
 import '../style/header.css'
 import { getFullImageUrl, processImageUrls } from '../config/index.js'
+import { loadImageWithHeaders, loadImagesWithHeaders } from '../utils/imageLoader.js'
 
 const route = useRoute()
 const router = useRouter()

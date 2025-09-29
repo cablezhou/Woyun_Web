@@ -244,6 +244,7 @@ import { getRouteDetail, downloadGPX, getRoutePoints } from '../api/routes.js'
 import { loadAmapScript, createMap, drawRoute } from '../utils/mapUtils.js'
 import '../style/header.css';
 import { getFullImageUrl, processImageUrls } from '../config/index.js'
+import { loadImageWithHeaders, loadImagesWithHeaders } from '../utils/imageLoader.js'
 
 const currentRoute = useRoute()
 const router = useRouter()

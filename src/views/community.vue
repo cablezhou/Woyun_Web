@@ -420,6 +420,7 @@ import { Bell } from '@element-plus/icons-vue'
 import NotificationList from '../component/NotificationList.vue'
 import '../style/header.css'
 import { getFullImageUrl, processImageUrls } from '../config/index.js'
+import { loadImageWithHeaders, loadImagesWithHeaders } from '../utils/imageLoader.js'
 
 // 使用认证状态管理
 const { isLoggedIn, currentUser, userDisplayName, userAvatar, updateUserInfo, updateAuthState, clearAuthState } = useAuth()
@@ -663,21 +664,25 @@ const loadCommunityPosts = async (page = 0, size = 10) => {
     const postsData = await getPosts({ page, size })
     
     // 处理动态数据
-    const processedPosts = (postsData.content || postsData || []).map(post => {
+    const processedPosts = await Promise.all((postsData.content || postsData || []).map(async post => {
       // 处理作者头像 - 使用统一的图片URL处理函数
       const fullAvatarUrl = getFullImageUrl(post.author?.avatarUrl)
       
       // 处理动态图片 - 使用统一的图片URL处理函数
       const processedImages = processImageUrls(post.imageUrls || [])
       
+      // 使用新的图片加载工具处理头像和图片
+      const processedAvatar = await loadImageWithHeaders(fullAvatarUrl)
+      const processedImageUrls = await loadImagesWithHeaders(processedImages)
+      
       return {
         id: post.id,
         content: post.content,
-        images: processedImages,
+        images: processedImageUrls,
         user: {
           id: post.author?.id,
           name: post.author?.name || post.author?.username,
-          avatar: fullAvatarUrl
+          avatar: processedAvatar
         },
         likes: post.likeCount || 0,
         isLiked: post.isLiked || false,
@@ -687,7 +692,7 @@ const loadCommunityPosts = async (page = 0, size = 10) => {
         comments: [], // 初始为空，点击时加载
         commentCount: post.commentCount || 0
       }
-    })
+    }))
     
     if (page === 0) {
       // 首次加载或刷新
