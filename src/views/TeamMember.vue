@@ -82,7 +82,7 @@
             <div class="member-tags">
               <span v-for="tag in member.tags" :key="tag" class="tag">{{ tag }}</span>
             </div>
-            <div class="member-stats">
+            <!-- <div class="member-stats">
               <div class="stat">
                 <span class="stat-value">{{ member.experience }}</span>
                 <span class="stat-label">经验</span>
@@ -95,7 +95,7 @@
                 <span class="stat-value">{{ member.joinDate }}</span>
                 <span class="stat-label">加入</span>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@
             <p class="story-content">{{ selectedMember.bio }}</p>
           </div>
 
-          <div class="member-achievements">
+          <!-- <div class="member-achievements">
             <h3 class="achievements-title">骑行成就</h3>
             <div class="achievements-grid">
               <div class="achievement-item">
@@ -152,7 +152,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <!-- 模态框标签 -->
           <div class="modal-tabs">
@@ -168,7 +168,7 @@
               :class="{ active: activeTab === 'bike' }"
               @click="switchTab('bike')"
             >
-              装备信息
+              车库
             </button>
           </div>
 
@@ -176,16 +176,12 @@
           <div class="tab-content" :class="{ active: activeTab === 'personal' }">
             <div class="info-grid">
               <div class="info-item">
-                <div class="info-label">骑行经验</div>
-                <div class="info-value">{{ selectedMember.experience }}</div>
+                <div class="info-label">偏爱路线</div>
+                <div class="info-value">{{ selectedMember.preferRoute }}</div>
               </div>
               <div class="info-item">
-                <div class="info-label">总里程</div>
-                <div class="info-value">{{ selectedMember.totalDistance }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">加入时间</div>
-                <div class="info-value">{{ selectedMember.joinDate }}</div>
+                <div class="info-label">其他爱好</div>
+                <div class="info-value">{{ selectedMember.otherHobbies }}</div>
               </div>
             </div>
             <div class="personal-photo-container">
@@ -204,7 +200,7 @@
                 <div class="info-label">型号</div>
                 <div class="info-value">{{ selectedMember.bikeModel }}</div>
               </div>
-              <div class="info-item">
+              <!-- <div class="info-item">
                 <div class="info-label">车架</div>
                 <div class="info-value">{{ selectedMember.bikeFrame }}</div>
               </div>
@@ -215,14 +211,14 @@
               <div class="info-item">
                 <div class="info-label">重量</div>
                 <div class="info-value">{{ selectedMember.bikeWeight }}</div>
-              </div>
+              </div> -->
               <div class="info-item">
                 <div class="info-label">购买时间</div>
                 <div class="info-value">{{ selectedMember.bikePurchaseDate }}</div>
               </div>
             </div>
             <img :src="selectedMember.bikePhoto" :alt="selectedMember.name + '的自行车'" class="bike-image" />
-            <p class="modal-member-bio">{{ selectedMember.bikeDescription }}</p>
+            <!-- <p class="modal-member-bio">{{ selectedMember.bikeDescription }}</p> -->
           </div>
         </div>
       </div>
@@ -248,18 +244,13 @@ interface Member {
   tags: string[];
   avatar: string;
   bio: string;
-  experience: string;
-  totalDistance: string;
-  joinDate: string;
   lifePhoto: string;
   bikePhoto: string;
   bikeBrand: string;
   bikeModel: string;
-  bikeFrame: string;
-  bikeGears: string;
-  bikeWeight: string;
   bikePurchaseDate: string;
-  bikeDescription: string;
+  preferRoute: string;
+  otherHobbies: string;
 }
 
 const activeMenu = ref("2-2");
@@ -280,18 +271,13 @@ const members = ref<Member[]>([
     tags: ['资深骑手', '路线规划师', '技术大牛'],
     avatar: import.meta.env.BASE_URL + 'imagines/members/avatar/zhou.jpg',
     bio: '卧云车队的创始人和精神领袖，拥有丰富的骑行经验和组织能力。热爱挑战各种路线，从山地越野到公路长途，都能够游刃有余。在他的带领下，卧云车队不仅仅是一个骑行组织，更是一个温暖的大家庭。',
-    experience: '8年',
-    totalDistance: '25000+公里',
-    joinDate: '2021年',
     lifePhoto: import.meta.env.BASE_URL + 'imagines/members/show/zhou.jpg',
     bikePhoto: import.meta.env.BASE_URL + 'imagines/members/bike/zhou.jpg',
     bikeBrand: 'Merida',
     bikeModel: 'Scultura 9000',
-    bikeFrame: '碳纤维',
-    bikeGears: 'Shimano Ultegra 22速',
-    bikeWeight: '7.3kg',
     bikePurchaseDate: '2022年',
-    bikeDescription: '这是一辆专业级的公路车，采用高级碳纤维车架，重量轻盈且性能卓越。配备Shimano Ultegra级别的传动系统，变速平顺精准，适合长距离骑行和竞速活动。'
+    preferRoute: '山地越野，公路长途',
+    otherHobbies: '不知',
   },
   {
     id: 'guo',
@@ -300,18 +286,13 @@ const members = ref<Member[]>([
     tags: ['逗比骑手', '路线破坏师', '牛魔王'],
     avatar: import.meta.env.BASE_URL + 'imagines/members/avatar/guo.jpg',
     bio: '卧云车队的逗比成员，搞笑担当，喜欢逗 others，喜欢打游戏，喜欢打篮球，喜欢打羽毛球，喜欢打tennis，喜欢打排球，喜欢打桌球，喜欢打台球，喜欢打冰球，喜欢打毛球，喜欢打保龄球...',
-    experience: '5年',
-    totalDistance: '15000+公里',
-    joinDate: '2022年',
     lifePhoto: import.meta.env.BASE_URL + 'imagines/members/show/guo.jpg',
     bikePhoto: import.meta.env.BASE_URL + 'imagines/members/bike/guo.jpg',
     bikeBrand: '自组',
     bikeModel: '逗比',
-    bikeFrame: '纸糊的',
-    bikeGears: 'Shimano Ultegra 22速',
-    bikeWeight: '7.8kg',
     bikePurchaseDate: '2022年',
-    bikeDescription: '这是一辆自组装的自行车，虽然材料普通，但经过多次改装和调教，性能 surprisingly好。适合日常训练和短途骑行。'
+    preferRoute: '公路短途',
+    otherHobbies: '收集小卡片',
   }
 ]);
 

@@ -47,11 +47,17 @@
         <div class="intro-text-new">
           <h2 class="section-title-new">关于卧云车队</h2>
           <p class="intro-paragraph-new" style="color: white !important;">
-            卧云车队成立于2021年，肇始于某郭姓男子组织的几次骑行活动，后由强者周开播发起组建。卧云车队是一支充满活力和激情的骑行团队。我们相信，每一次踩踏都是对生活的热爱，每一段路程都是心灵洗礼。
+            卧云车队是一支扎根昆明的自行车队，于2021 年正式组建，缘起于两三好友的骑行之约。随着同好加入，活动从零星邀约变得丰富，从城市短途到山野长途，每一次骑行都满含热情，"卧云车队" 也成为大家共同的符号。
           </p>
           <p class="intro-paragraph-new" style="color: white !important;">
-            我们不仅仅是一支骑行队伍，更是一个温暖的大家庭。在这里，你会遇到志同道合的朋友，分享骑行的快乐，探索未知的美景。
+            创建之初，成员皆是高中生，即便学业繁忙，仍会在休息日相约骑行，用车轮记录青春。如今众人步入高校，假期依旧准时集结，这份热爱从未中断。
           </p>
+          <p class="intro-paragraph-new" style="color: white !important;">
+            卧云不只是自行车队，更是一个温暖的大家庭。每一次踩踏藏着对生活的热爱，每段路程都是心灵洗礼；在这里能遇同频伙伴，共赏风景、探未知路线，收获友谊与成长。我们始终相信，骑行的意义不止抵达，更在途中的相遇与热爱传递。
+          </p>
+          <!-- <p class="intro-paragraph-new" style="color: white !important;">
+            我们不仅仅是一支骑行队伍，更是一个温暖的大家庭。在这里，你会遇到志同道合的朋友，分享骑行的快乐，探索未知的美景。
+          </p> -->
           <div class="team-stats-new">
             <div class="stat-item-new">
               <div class="stat-number-new">20+</div>
@@ -62,44 +68,34 @@
               <div class="stat-label-new">活动</div>
             </div>
             <div class="stat-item-new">
-              <div class="stat-number-new">5000+</div>
-              <div class="stat-label-new">公里</div>
+              <div class="stat-number-new">10+</div>
+              <div class="stat-label-new">城市</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 活动事迹 -->
-    <div class="activities-section fade-in-section" ref="activityRef">
-      <h2 class="section-title-new text-center">活动事迹</h2>
-      <div class="timeline-container">
-        <div class="timeline-line"></div>
-        <div class="timeline-item" v-for="(activity, index) in activities" :key="activity.id" :class="{ 'timeline-item-right': index % 2 === 1 }">
-          <div class="timeline-dot"></div>
-          <div class="timeline-content">
-            <div class="activity-image">
-              <img :src="activity.image" :alt="activity.name" class="activity-img">
-            </div>
-            <div class="activity-info">
-              <h3 class="activity-name">{{ activity.name }}</h3>
-              <p class="activity-date">{{ activity.date }}</p>
-              <p class="activity-description">{{ activity.description }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="journey-stats-section" ref="journeyStatsRef">
+      <h2 class="journey-stats-title text-center">
+        自2021年起，卧云车队成员已累计骑行超过
+        <span class="animated-number" ref="animatedNumberRef">{{ displayNumber }}</span>
+        公里
+      </h2>
     </div>
-
-
 
     <!-- 品牌展示区域 -->
-    <div class="brand-section fade-in-section" ref="brandRef">
+    <div class="brand-section-wrapper fade-in-section" ref="brandRef">
+      <div class="brand-section">
+        <img src="/imagines/pintu2.jpg" alt="品牌展示" class="brand-background-img">
+        <div class="brand-overlay"></div>
+      </div>
+      <!-- 品牌文字内容 - 固定在wrapper内，不受滚动影响 -->
       <div class="brand-content">
         <div class="brand-text">
           <h2 class="brand-title">征途无界</h2>
           <h3 class="brand-subtitle">探索无限</h3>
-          <p class="brand-description">用车轮丈量世界的广阔，用心灵感受生命的深度</p>
+          <!-- <p class="brand-description">用车轮丈量世界的广阔，用心灵感受生命的深度</p> -->
           <!-- <div class="brand-keywords">
             <span class="keyword">专业</span>
             <span class="keyword">激情</span>
@@ -108,6 +104,39 @@
         </div>
       </div>
     </div>
+
+    <!-- 活动事迹 -->
+    <div class="activities-section fade-in-section" ref="activityRef">
+      <!-- <h2 class="section-title-new text-center" style="margin-bottom:100px;">我们的旅程</h2> -->
+      <div class="journey-container" style = "margin-top: 100px;">
+        <div class="journey-item" v-for="(activity, index) in activities" :key="activity.id" :class="{ 'journey-item-reverse': index % 2 === 1 }">
+          <div class="journey-image">
+            <img :src="activity.image" :alt="activity.name" class="journey-img">
+          </div>
+          <div class="journey-content">
+            <div class="journey-text">
+              <h3 class="journey-title">{{ activity.name }}</h3>
+              <!-- <p class="journey-date">{{ activity.date }}</p> -->
+              <p class="journey-description">{{ activity.description }}</p>
+              <div class="journey-meta">
+                <span class="journey-location">
+                  <i class="location-icon">📍</i>
+                  {{ activity.location }}
+                </span>
+                <span class="journey-time">
+                  <i class="time-icon">📅</i>
+                  {{ activity.time }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
 
     <!-- Dual Carousel Section -->
     <div class="dual-carousel-section-new fade-in-section" ref="carouselRef">
@@ -120,7 +149,7 @@
               <img :src="item.img" :alt="item.title" class="carousel-img-new">
               <div class="carousel-caption-new">
                 <h3>{{ item.title }}</h3>
-                <p>{{ item.description }}</p>
+                <!-- <p>{{ item.description }}</p> -->
               </div>
             </el-carousel-item>
           </el-carousel>
@@ -132,7 +161,7 @@
               <img :src="item.img" :alt="item.title" class="carousel-img-new">
               <div class="carousel-caption-new">
                 <h3>{{ item.title }}</h3>
-                <p>{{ item.description }}</p>
+                <!-- <p>{{ item.description }}</p> -->
               </div>
             </el-carousel-item>
           </el-carousel>
@@ -148,7 +177,7 @@
           <img :src="item.img" :alt="item.title" class="philosophy-img-new">
           <div class="philosophy-content-new">
             <h3>{{ item.title }}</h3>
-            <p>{{ item.description }}</p>
+            <!-- <p>{{ item.description }}</p> -->
           </div>
         </div>
       </div>
@@ -185,7 +214,7 @@
           <div class="contact-details">
             <div class="contact-item">
               <span class="contact-label">QQ群：</span>
-              <span class="contact-value">123456789</span>
+              <span class="contact-value">948990693</span>
             </div>
             <!-- <div class="contact-item">
               <span class="contact-label">活动时间：</span>
@@ -202,13 +231,13 @@
         <div class="social-section">
           <h3 class="social-title">关注我们</h3>
           <div class="social-links">
-            <a href="#" class="social-link wechat-link" title="微信公众号">
+            <div class="social-link wechat-link" title="微信公众号" @click="showQRCode">
               <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 4.882-1.416 6.585 0 1.775 1.474 2.789 3.868 1.932 6.446a5.862 5.862 0 0 0 2.837-.403.864.864 0 0 1 .717.098l1.903 1.114a.326.326 0 0 0 .167.054c.16 0 .29-.132.29-.295 0-.072-.029-.143-.048-.213l-.39-1.48a.59.59 0 0 1 .213-.665C22.83 13.733 24 11.742 24 9.53c0-4.054-3.891-7.342-8.691-7.342-1.785 0-3.433.484-4.809 1.312C9.524 2.672 8.691 2.188 8.691 2.188z"/>
               </svg>
               <span>微信公众号</span>
-            </a>
-            <a href="#" class="social-link bilibili-link" title="Bilibili">
+            </div>
+            <a href="https://space.bilibili.com/485025481?spm_id_from=333.337.0.0" class="social-link bilibili-link" title="Bilibili" target="_blank" rel="noopener noreferrer"> <!-- target="_blank" 定义新标签页打开， rel="noopener noreferrer" 防止新标签页访问原始页面 -->
               <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .356-.124.657-.373.906l-1.174 1.12zM6.4 15.64h2.747v2.747H6.4zm8.853 0h2.747v2.747H15.253zm-4.267-8.533h2.027c.356 0 .653.124.893.373.24.249.36.551.36.907v4.267c0 .355-.12.658-.36.907-.24.249-.537.373-.893.373H10.986c-.356 0-.653-.124-.893-.373-.24-.249-.36-.552-.36-.907V8.387c0-.356.12-.658.36-.907.24-.249.537-.373.893-.373z"/>
               </svg>
@@ -223,6 +252,20 @@
     <el-footer class="footer">
       <p class="footer-text">© 2025 卧云车队 | 行者至千里，卧云看浮沉</p>
     </el-footer>
+
+    <!-- 微信二维码弹窗 -->
+    <div v-if="showQRModal" class="qr-modal-overlay" @click="hideQRCode">
+      <div class="qr-modal" @click.stop>
+        <div class="qr-modal-header">
+          <h3>微信公众号</h3>
+          <button class="close-btn" @click="hideQRCode">×</button>
+        </div>
+        <div class="qr-modal-content">
+          <img src="/imagines/getqrcode.jpg" alt="微信公众号二维码" class="qr-code-image">
+          <p class="qr-code-text">扫描二维码关注我们</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -251,42 +294,51 @@ const brandRef = ref<HTMLElement | null>(null);
 const videoElement = ref<HTMLVideoElement | null>(null);
 const philosophyRef = ref<HTMLElement | null>(null);
 const joinRef = ref<HTMLElement | null>(null);
+const journeyStatsRef = ref<HTMLElement | null>(null);
+const animatedNumberRef = ref<HTMLElement | null>(null);
+const displayNumber = ref(0);
+const targetNumber = 20000;
+let animationStarted = ref(false);
+
+// 微信二维码弹窗相关
+const showQRModal = ref(false);
+
 const highlights = ref([
   {
     img: import.meta.env.BASE_URL + 'imagines/carousel/new1.jpg',
-    title: '城市骑行',
+    title: '滇池一隅',
     description: '穿梭在城市的大街小巷，感受都市的脉搏'
   },
   {
     img: import.meta.env.BASE_URL + 'imagines/carousel/new3.jpg',
-    title: '团队合影',
+    title: '共同承担',
     description: '记录每一次出行，留下美好回忆'
   },
   {
     img: import.meta.env.BASE_URL + 'imagines/carousel/new2.jpg',
-    title: '自然风光',
+    title: '华灯初上',
     description: '远离喧嚣，拥抱大自然的怀抱'
   }
 ]);
 const routes = ref([
   {
     img: import.meta.env.BASE_URL + 'imagines/history/c1.jpg',
-    title: '山地挑战线',
+    title: '卧云山正爬环线',
     description: '征服起伏山路，挑战自我极限'
   },
   {
     img: import.meta.env.BASE_URL + 'imagines/history/c2.jpg',
-    title: '湖畔休闲线',
+    title: '青岛潍坊环线',
     description: '沿湖而行，享受宁静美景'
   },
   {
     img: import.meta.env.BASE_URL + 'imagines/history/c3.jpg',
-    title: '乡村探索线',
+    title: '滇池环线',
     description: '穿越田野乡间，体验淳朴风情'
   },
   {
     img: import.meta.env.BASE_URL + 'imagines/history/c4.jpg',
-    title: '城际连接线',
+    title: '昆明弥勒环线',
     description: '连接城市之间，开启长途骑行'
   }
 ]);
@@ -302,8 +354,8 @@ const philosophies = ref([
     description: '相互帮助，共同进步，没有人会被落下，我们一起到达终点。'
   },
   {
-    img: import.meta.env.BASE_URL + 'imagines/philosophy/微信图片_20250919145706_96_51.jpg',
-    title: '环保出行',
+    img: import.meta.env.BASE_URL + 'imagines/philosophy/renwen.jpg',
+    title: '人文关怀',
     description: '用自行车代替机动车，为环保贡献一份力量，保护我们美丽的地球。'
   },
   {
@@ -315,46 +367,39 @@ const philosophies = ref([
 const activities = ref([
   {
     id: 1,
-    name: '散旦镇探险',
+    name: '探索',
     date: '2021年2月',
-    description: '探寻陌生路线，战胜泥泞山险',
-    image: import.meta.env.BASE_URL + 'imagines/1.jpg'
+    description: '穿梭在城市的大街小巷，感受都市的脉搏与呼吸。每一条街道都有它独特的故事，每一个转角都可能遇见惊喜。我们用车轮丈量城市的温度，用心感受这座城市的生命力。在钢筋水泥的森林中，寻找属于骑行者的自由天地，发现城市中那些被忽略的美好角落。',
+    image: import.meta.env.BASE_URL + 'imagines/1.jpg',
+    location: '昆明市长虫山',
+    time: '2024年8月16日'
   },
   {
     id: 2,
-    name: '团结乡骑游',
-    date: '我怎么记得',
-    description: '团结乡游乐骑行，激发骑行激情。',
-    image: import.meta.env.BASE_URL + 'imagines/2.jpg'
+    name: '长途',
+    date: '2021年4月',
+    description: '跨越山川河流，连接不同的城市。长途骑行不仅是对体力的考验，更是对意志的磨练。在漫长的路途中，我们学会坚持，学会欣赏沿途的风景。每一次踩踏都是向前的动力，每一滴汗水都见证着我们的成长。从日出到日落，从城市到乡村，我们用双轮书写着属于自己的传奇。',
+    image: import.meta.env.BASE_URL + 'imagines/2.jpg',
+    location: '丽江市玉龙纳西族自治县',
+    time: '2024年7月12日'
   },
   {
     id: 3,
-    name: '初登卧云山',
-    date: '2021年4月',
-    description: '郭周金三人首次攀登卧云山，成功登顶。',
-    image: import.meta.env.BASE_URL + 'imagines/3.jpg'
+    name: '未知',
+    date: '2021年6月',
+    description: '面对未知的路径，我们选择勇敢前行。每一次出发都是对未知的探索。在陌生的道路上，我们可能会迷路，可能会遇到困难，但正是这些不确定性让骑行变得更加精彩。勇气不是没有恐惧，而是带着恐惧依然前行。最美的风景往往在最难走的路上。',
+    image: import.meta.env.BASE_URL + 'imagines/3.jpg',
+    location: '昆明市青龙峡',
+    time: '2025年7月12日'
   },
   {
-  
     id: 4,
-    name: '"阳康"后首次环滇',
+    name: '攀登',
     date: '2023年1月',
-    description: '病体初愈，车队几人相约环滇复建。',
-    image: import.meta.env.BASE_URL + 'imagines/4.jpg'
-  },
-  {
-    id: 5,
-    name: '昆明弥勒大环线',
-    date: '2023年2月',
-    description: '冬季严寒天气下骑行，昆明至弥勒。',
-    image: import.meta.env.BASE_URL + 'imagines/5.jpg'
-  },
-  {
-    id: 6,
-    name: '卧云山朝圣',
-    date: '2023年4月',
-    description: '车队骑行活动人数至多之行，二登卧云山',
-    image: import.meta.env.BASE_URL + 'imagines/6.jpg'
+    description: '挑战自我，勇攀高峰是每个骑行者的终极梦想。山路崎岖，坡度陡峭，但我们从不退缩。每一次爬坡都是对极限的挑战，每一次登顶都是对自我的证明。在汗水与坚持中，我们不断突破自己的边界，发现内心深处那个更强大的自己。山顶的风景是对勇敢者最好的奖赏，那一刻的成就感将永远激励我们继续前行。',
+    image: import.meta.env.BASE_URL + 'imagines/4.jpg',
+    location: '昆明市金铜盆山',
+    time: '2023年1月12日'
   }
 ]);
 
@@ -382,6 +427,40 @@ const handleMenuSelect = (key: string) => {
   }
 };
 
+// 微信二维码弹窗控制方法
+const showQRCode = () => {
+  showQRModal.value = true;
+};
+
+const hideQRCode = () => {
+  showQRModal.value = false;
+};
+
+// 数字动画函数
+const animateNumber = () => {
+  const duration = 2000; // 动画持续时间2秒
+  const startTime = Date.now();
+  const startValue = 0;
+  
+  const updateNumber = () => {
+    const currentTime = Date.now();
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // 使用缓动函数，让动画更自然
+    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+    displayNumber.value = Math.floor(startValue + (targetNumber - startValue) * easeOutQuart);
+    
+    if (progress < 1) {
+      requestAnimationFrame(updateNumber);
+    } else {
+      displayNumber.value = targetNumber;
+    }
+  };
+  
+  requestAnimationFrame(updateNumber);
+};
+
 const handleScroll = () => {
   const st = document.body.scrollTop;
   if (st > lastScrollTop) {
@@ -400,6 +479,11 @@ const observeElements = () => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('fade-in-active');
+          // 如果是数字动画区域，触发数字动画
+          if (entry.target === journeyStatsRef.value && !animationStarted.value) {
+            animationStarted.value = true;
+            animateNumber();
+          }
         }
       });
     },
@@ -416,7 +500,8 @@ const observeElements = () => {
     carouselRef.value,
     brandRef.value,
     philosophyRef.value,
-    joinRef.value
+    joinRef.value,
+    journeyStatsRef.value
   ];
   elementsToObserve.forEach((el) => {
     if (el) {
