@@ -917,6 +917,19 @@ body:has(.home) {
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
+  scroll-behavior: smooth; /* 添加平滑滚动 */
+}
+
+/* 移动端隐藏滚动条 */
+@media (max-width: 768px) {
+  .brand-section {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  .brand-section::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 }
 
 /* 自定义滚动条样式 */

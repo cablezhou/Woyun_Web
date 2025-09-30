@@ -60,13 +60,13 @@
         <div class="intro-text-new">
           <h2 class="section-title-new">关于卧云车队</h2>
           <p class="intro-paragraph-new" style="color: white !important;">
-            卧云车队是一支扎根昆明的自行车队，于2021 年正式组建，缘起于两三好友的骑行之约。随着同好加入，活动从零星邀约变得丰富，从城市短途到山野长途，每一次骑行都满含热情，"卧云车队" 也成为大家共同的符号。
+            卧云车队是一支扎根昆明的自行车队，于2021年正式组建，缘起于两三好友的骑行之约。随着同好加入，活动从零星邀约变得丰富，从城市短途到山野长途，每一次骑行都满含热情，"卧云车队" 也成为大家共同的符号。
           </p>
           <p class="intro-paragraph-new" style="color: white !important;">
             创建之初，成员皆是高中生，即便学业繁忙，仍会在休息日相约骑行，用车轮记录青春。如今众人步入高校，假期依旧准时集结，这份热爱从未中断。
           </p>
           <p class="intro-paragraph-new" style="color: white !important;">
-            卧云不只是自行车队，更是一个温暖的大家庭。每一次踩踏藏着对生活的热爱，每段路程都是心灵洗礼；在这里能遇同频伙伴，共赏风景、探未知路线，收获友谊与成长。我们始终相信，骑行的意义不止抵达，更在途中的相遇与热爱传递。
+            卧云不只是车队，更是一个温暖的大家庭。每一次踩踏藏着对生活的热爱，每段路程都是心灵洗礼；在这里能遇同频伙伴，共赏风景、探未知路线，收获友谊与成长。我们始终相信，骑行的意义不止抵达，更在途中的相遇与热爱传递。
           </p>
           <!-- <p class="intro-paragraph-new" style="color: white !important;">
             我们不仅仅是一支骑行队伍，更是一个温暖的大家庭。在这里，你会遇到志同道合的朋友，分享骑行的快乐，探索未知的美景。
@@ -99,7 +99,7 @@
 
     <!-- 品牌展示区域 -->
     <div class="brand-section-wrapper fade-in-section" ref="brandRef">
-      <div class="brand-section">
+      <div class="brand-section" ref="brandSectionRef">
         <img src="/imagines/pintu2.jpg" alt="品牌展示" class="brand-background-img">
         <div class="brand-overlay"></div>
       </div>
@@ -305,6 +305,7 @@ const activityRef = ref<HTMLElement | null>(null);
 const carouselRef = ref<HTMLElement | null>(null);
 const videoRef = ref<HTMLElement | null>(null);
 const brandRef = ref<HTMLElement | null>(null);
+const brandSectionRef = ref<HTMLElement | null>(null); // 添加品牌滚动区域引用
 const videoElement = ref<HTMLVideoElement | null>(null);
 const philosophyRef = ref<HTMLElement | null>(null);
 const joinRef = ref<HTMLElement | null>(null);
@@ -313,6 +314,7 @@ const animatedNumberRef = ref<HTMLElement | null>(null);
 const displayNumber = ref(0);
 const targetNumber = 20000;
 let animationStarted = ref(false);
+let brandScrollInterval: number | null = null; // 品牌区域自动滚动定时器
 
 // 微信二维码弹窗相关
 const showQRModal = ref(false);
@@ -486,6 +488,61 @@ const handleScroll = () => {
   }
   lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
 };
+// 品牌区域自动滚动函数
+const startBrandAutoScroll = () => {
+  if (!isMobile.value || !brandSectionRef.value) return;
+  
+  const brandSection = brandSectionRef.value;
+  const scrollSpeed = 1; // 滚动速度，像素/次
+  const scrollInterval = 50; // 滚动间隔，毫秒
+  
+  brandScrollInterval = setInterval(() => {
+    if (brandSection) {
+      brandSection.scrollLeft += scrollSpeed;
+      
+      // 如果滚动到最右边，重置到最左边实现无限循环
+      if (brandSection.scrollLeft >= brandSection.scrollWidth - brandSection.clientWidth) {
+        brandSection.scrollLeft = 0;
+      }
+    }
+  }, scrollInterval);
+};
+
+// 停止品牌区域自动滚动
+const stopBrandAutoScroll = () => {
+  if (brandScrollInterval) {
+    clearInterval(brandScrollInterval);
+    brandScrollInterval = null;
+  }
+};
+
+// 处理品牌区域的触摸/鼠标事件
+const handleBrandInteraction = () => {
+  if (!isMobile.value) return;
+  
+  const brandSection = brandSectionRef.value;
+  if (!brandSection) return;
+  
+  // 用户开始交互时停止自动滚动
+  const stopAutoScroll = () => stopBrandAutoScroll();
+  
+  // 用户结束交互后重新开始自动滚动
+  const restartAutoScroll = () => {
+    setTimeout(() => {
+      if (isMobile.value) {
+        startBrandAutoScroll();
+      }
+    }, 3000); // 3秒后重新开始自动滚动
+  };
+  
+  // 添加事件监听器
+  brandSection.addEventListener('touchstart', stopAutoScroll);
+  brandSection.addEventListener('touchend', restartAutoScroll);
+  brandSection.addEventListener('mousedown', stopAutoScroll);
+  brandSection.addEventListener('mouseup', restartAutoScroll);
+  brandSection.addEventListener('scroll', stopAutoScroll);
+};
+
 // 满屏动画观察器
 const observeElements = () => {
   const observer = new IntersectionObserver(
@@ -528,6 +585,16 @@ onMounted(() => {
   // 检测是否为移动端
   const checkMobile = () => {
     isMobile.value = window.innerWidth <= 768;
+    
+    // 根据设备类型启动或停止自动滚动
+    if (isMobile.value) {
+      setTimeout(() => {
+        startBrandAutoScroll();
+        handleBrandInteraction();
+      }, 1000); // 延迟1秒启动，确保DOM完全加载
+    } else {
+      stopBrandAutoScroll();
+    }
   };
   
   checkMobile();
@@ -541,8 +608,7 @@ onMounted(() => {
 });
 onUnmounted(() => {
   document.body.removeEventListener('scroll', handleScroll);
-  window.removeEventListener('resize', () => {
-    isMobile.value = window.innerWidth <= 768;
-  });
+  window.removeEventListener('resize', checkMobile);
+  stopBrandAutoScroll(); // 清理自动滚动定时器
 });
 </script>
