@@ -314,7 +314,7 @@ const animatedNumberRef = ref<HTMLElement | null>(null);
 const displayNumber = ref(0);
 const targetNumber = 20000;
 let animationStarted = ref(false);
-let brandScrollInterval: number | null = null; // 品牌区域自动滚动定时器
+let brandScrollInterval: ReturnType<typeof setInterval> | null = null; // 品牌区域自动滚动定时器
 
 // 微信二维码弹窗相关
 const showQRModal = ref(false);
@@ -490,22 +490,44 @@ const handleScroll = () => {
 };
 // 品牌区域自动滚动函数
 const startBrandAutoScroll = () => {
-  if (!isMobile.value || !brandSectionRef.value) return;
+  console.log('尝试启动自动滚动，isMobile:', isMobile.value, 'brandSectionRef:', brandSectionRef.value);
+  
+  // 先停止之前的滚动
+  stopBrandAutoScroll();
+  
+  if (!isMobile.value || !brandSectionRef.value) {
+    console.log('自动滚动未启动：', { isMobile: isMobile.value, hasRef: !!brandSectionRef.value });
+    return;
+  }
   
   const brandSection = brandSectionRef.value;
-  const scrollSpeed = 1; // 滚动速度，像素/次
-  const scrollInterval = 50; // 滚动间隔，毫秒
+  const scrollSpeed = 2; // 增加滚动速度
+  const scrollInterval = 30; // 减少滚动间隔，使滚动更流畅
+  
+  console.log('开始自动滚动，元素:', brandSection);
+  console.log('滚动区域信息:', {
+    scrollWidth: brandSection.scrollWidth,
+    clientWidth: brandSection.clientWidth,
+    scrollLeft: brandSection.scrollLeft
+  });
   
   brandScrollInterval = setInterval(() => {
     if (brandSection) {
-      brandSection.scrollLeft += scrollSpeed;
+      const currentScrollLeft = brandSection.scrollLeft;
+      const maxScroll = brandSection.scrollWidth - brandSection.clientWidth;
       
-      // 如果滚动到最右边，重置到最左边实现无限循环
-      if (brandSection.scrollLeft >= brandSection.scrollWidth - brandSection.clientWidth) {
+      if (currentScrollLeft >= maxScroll) {
+        // 重置到最左边
         brandSection.scrollLeft = 0;
+        console.log('滚动重置到开始位置');
+      } else {
+        // 继续滚动
+        brandSection.scrollLeft += scrollSpeed;
       }
     }
   }, scrollInterval);
+  
+  console.log('自动滚动定时器已设置:', brandScrollInterval);
 };
 
 // 停止品牌区域自动滚动
@@ -523,24 +545,65 @@ const handleBrandInteraction = () => {
   const brandSection = brandSectionRef.value;
   if (!brandSection) return;
   
-  // 用户开始交互时停止自动滚动
-  const stopAutoScroll = () => stopBrandAutoScroll();
+  let userInteracting = false;
+  let restartTimer: ReturnType<typeof setTimeout> | null = null;
   
-  // 用户结束交互后重新开始自动滚动
-  const restartAutoScroll = () => {
-    setTimeout(() => {
-      if (isMobile.value) {
-        startBrandAutoScroll();
-      }
-    }, 3000); // 3秒后重新开始自动滚动
+  // 用户开始交互时停止自动滚动
+  const startInteraction = () => {
+    userInteracting = true;
+    stopBrandAutoScroll();
+    
+    // 清除之前的重启定时器
+    if (restartTimer) {
+      clearTimeout(restartTimer);
+      restartTimer = null;
+    }
   };
   
-  // 添加事件监听器
-  brandSection.addEventListener('touchstart', stopAutoScroll);
-  brandSection.addEventListener('touchend', restartAutoScroll);
-  brandSection.addEventListener('mousedown', stopAutoScroll);
-  brandSection.addEventListener('mouseup', restartAutoScroll);
-  brandSection.addEventListener('scroll', stopAutoScroll);
+  // 用户结束交互后重新开始自动滚动
+  const endInteraction = () => {
+    userInteracting = false;
+    
+    // 清除之前的重启定时器
+    if (restartTimer) {
+      clearTimeout(restartTimer);
+    }
+    
+    // 3秒后重新开始自动滚动
+    restartTimer = setTimeout(() => {
+      if (isMobile.value && !userInteracting) {
+        startBrandAutoScroll();
+      }
+    }, 3000);
+  };
+  
+  // 添加触摸事件监听器
+  brandSection.addEventListener('touchstart', startInteraction, { passive: true });
+  brandSection.addEventListener('touchend', endInteraction, { passive: true });
+  
+  // 添加鼠标事件监听器（用于桌面端测试）
+  brandSection.addEventListener('mousedown', startInteraction);
+  brandSection.addEventListener('mouseup', endInteraction);
+  
+  // 监听滚动开始和结束
+  let scrollTimer: ReturnType<typeof setTimeout> | null = null;
+  brandSection.addEventListener('scroll', () => {
+    // 滚动开始时停止自动滚动
+    if (!userInteracting) {
+      stopBrandAutoScroll();
+      userInteracting = true;
+    }
+    
+    // 清除之前的滚动结束定时器
+    if (scrollTimer) {
+      clearTimeout(scrollTimer);
+    }
+    
+    // 滚动结束后重新开始自动滚动
+    scrollTimer = setTimeout(() => {
+      endInteraction();
+    }, 1000); // 1秒后认为滚动结束
+  }, { passive: true });
 };
 
 // 满屏动画观察器
@@ -582,17 +645,23 @@ const observeElements = () => {
 };
 
 onMounted(() => {
+  console.log('组件已挂载');
+  
   // 检测是否为移动端
   const checkMobile = () => {
     isMobile.value = window.innerWidth <= 768;
+    console.log('检测移动端:', isMobile.value, '窗口宽度:', window.innerWidth);
     
     // 根据设备类型启动或停止自动滚动
     if (isMobile.value) {
+      console.log('移动端检测到，准备启动自动滚动');
       setTimeout(() => {
+        console.log('延迟启动自动滚动');
         startBrandAutoScroll();
         handleBrandInteraction();
-      }, 1000); // 延迟1秒启动，确保DOM完全加载
+      }, 2000); // 增加延迟时间，确保DOM完全加载
     } else {
+      console.log('桌面端检测到，停止自动滚动');
       stopBrandAutoScroll();
     }
   };

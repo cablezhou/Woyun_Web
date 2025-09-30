@@ -957,8 +957,8 @@ body:has(.home) {
   top: 0;
   left: 0;
   height: 100%;
-  width: auto;
-  min-width: 270%; /* 增加最小宽度确保图片完全显示 */
+  width: 300%; /* 增加宽度确保有足够的滚动空间 */
+  min-width: 300%; /* 确保最小宽度 */
   object-fit: cover;
   object-position: left center;
   z-index: 0;
@@ -968,7 +968,7 @@ body:has(.home) {
   position: absolute;
   top: 0;
   left: 0;
-  width: 270%; /* 与图片最小宽度保持一致 */
+  width: 300%; /* 与图片宽度保持一致 */
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
   z-index: 1;
