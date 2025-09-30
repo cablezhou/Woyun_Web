@@ -315,6 +315,7 @@ const displayNumber = ref(0);
 const targetNumber = 20000;
 let animationStarted = ref(false);
 let brandScrollInterval: ReturnType<typeof setInterval> | null = null; // 品牌区域自动滚动定时器
+const userInteracting = ref(false); // 用户交互状态
 
 // 微信二维码弹窗相关
 const showQRModal = ref(false);
@@ -495,31 +496,38 @@ const startBrandAutoScroll = () => {
   // 先停止之前的滚动
   stopBrandAutoScroll();
   
-  if (!isMobile.value || !brandSectionRef.value) {
-    console.log('自动滚动未启动：', { isMobile: isMobile.value, hasRef: !!brandSectionRef.value });
+  if (!brandSectionRef.value) {
+    console.log('自动滚动未启动：brandSectionRef为空');
     return;
   }
   
   const brandSection = brandSectionRef.value;
-  const scrollSpeed = 2; // 增加滚动速度
-  const scrollInterval = 30; // 减少滚动间隔，使滚动更流畅
+  const scrollSpeed = 1; // 减慢滚动速度
+  const scrollInterval = 50; // 增加滚动间隔，使滚动更平滑
   
   console.log('开始自动滚动，元素:', brandSection);
   console.log('滚动区域信息:', {
     scrollWidth: brandSection.scrollWidth,
     clientWidth: brandSection.clientWidth,
-    scrollLeft: brandSection.scrollLeft
+    scrollLeft: brandSection.scrollLeft,
+    canScroll: brandSection.scrollWidth > brandSection.clientWidth
   });
   
+  // 检查是否可以滚动
+  if (brandSection.scrollWidth <= brandSection.clientWidth) {
+    console.log('滚动区域宽度不足，无法滚动');
+    return;
+  }
+  
   brandScrollInterval = setInterval(() => {
-    if (brandSection) {
+    if (brandSection && !userInteracting.value) {
       const currentScrollLeft = brandSection.scrollLeft;
       const maxScroll = brandSection.scrollWidth - brandSection.clientWidth;
       
+      // 到达全景图片的末尾，立即重置到开始位置
       if (currentScrollLeft >= maxScroll) {
-        // 重置到最左边
         brandSection.scrollLeft = 0;
-        console.log('滚动重置到开始位置');
+        console.log('滚动重置到开始位置，从', currentScrollLeft, '重置到 0');
       } else {
         // 继续滚动
         brandSection.scrollLeft += scrollSpeed;
@@ -545,12 +553,13 @@ const handleBrandInteraction = () => {
   const brandSection = brandSectionRef.value;
   if (!brandSection) return;
   
-  let userInteracting = false;
+  let localUserInteracting = false;
   let restartTimer: ReturnType<typeof setTimeout> | null = null;
   
   // 用户开始交互时停止自动滚动
   const startInteraction = () => {
-    userInteracting = true;
+    localUserInteracting = true;
+    userInteracting.value = true;
     stopBrandAutoScroll();
     
     // 清除之前的重启定时器
@@ -562,7 +571,8 @@ const handleBrandInteraction = () => {
   
   // 用户结束交互后重新开始自动滚动
   const endInteraction = () => {
-    userInteracting = false;
+    localUserInteracting = false;
+    userInteracting.value = false;
     
     // 清除之前的重启定时器
     if (restartTimer) {
@@ -571,7 +581,7 @@ const handleBrandInteraction = () => {
     
     // 3秒后重新开始自动滚动
     restartTimer = setTimeout(() => {
-      if (isMobile.value && !userInteracting) {
+      if (isMobile.value && !localUserInteracting) {
         startBrandAutoScroll();
       }
     }, 3000);
@@ -589,9 +599,10 @@ const handleBrandInteraction = () => {
   let scrollTimer: ReturnType<typeof setTimeout> | null = null;
   brandSection.addEventListener('scroll', () => {
     // 滚动开始时停止自动滚动
-    if (!userInteracting) {
+    if (!localUserInteracting) {
       stopBrandAutoScroll();
-      userInteracting = true;
+      localUserInteracting = true;
+      userInteracting.value = true;
     }
     
     // 清除之前的滚动结束定时器
@@ -649,21 +660,31 @@ onMounted(() => {
   
   // 检测是否为移动端
   const checkMobile = () => {
-    isMobile.value = window.innerWidth <= 768;
+    const isMobileDevice = window.innerWidth <= 768;
+    isMobile.value = isMobileDevice;
     console.log('检测移动端:', isMobile.value, '窗口宽度:', window.innerWidth);
     
-    // 根据设备类型启动或停止自动滚动
-    if (isMobile.value) {
-      console.log('移动端检测到，准备启动自动滚动');
-      setTimeout(() => {
-        console.log('延迟启动自动滚动');
+    // 强制启动自动滚动进行测试
+    setTimeout(() => {
+      console.log('强制启动自动滚动测试');
+      console.log('brandSectionRef.value:', brandSectionRef.value);
+      
+      if (brandSectionRef.value) {
+        const brandSection = brandSectionRef.value;
+        console.log('找到品牌区域元素:', brandSection);
+        console.log('滚动区域信息:', {
+          scrollWidth: brandSection.scrollWidth,
+          clientWidth: brandSection.clientWidth,
+          scrollLeft: brandSection.scrollLeft,
+          offsetWidth: brandSection.offsetWidth
+        });
+        
+        // 直接启动滚动，不管是否为移动端
         startBrandAutoScroll();
-        handleBrandInteraction();
-      }, 2000); // 增加延迟时间，确保DOM完全加载
-    } else {
-      console.log('桌面端检测到，停止自动滚动');
-      stopBrandAutoScroll();
-    }
+      } else {
+        console.log('未找到品牌区域元素');
+      }
+    }, 3000); // 延迟3秒确保DOM完全加载
   };
   
   checkMobile();
