@@ -46,6 +46,12 @@
   color: white;
 }
 
+/* 导航菜单整体样式 */
+.header .nav-menu {
+  background-color: #122031 !important; /* 确保菜单背景与header一致 */
+  border: none !important;
+}
+
 .header .el-menu-item {
   font-size: 13px !important; /* 减小菜单项字体大小 */
   background-color: #122031 !important; /* 使菜单项背景与header背景一致 */
@@ -147,50 +153,68 @@
     padding-bottom: 10px !important;
   }
   
+  .title {
+    flex-shrink: 0; /* 防止标题被压缩 */
+    min-width: 0; /* 允许文字换行 */
+  }
+  
   .header .title img {
     width: 35px;
     height: 35px;
   }
   
   .header .title-text {
-    font-size: 18px;
+    font-size: 16px; /* 进一步减小字体 */
+    white-space: nowrap; /* 保持单行显示 */
   }
   
   .header .divider {
     color: white;
+    font-size: 14px; /* 减小分隔符大小 */
+  }
+  
+  /* 手机端菜单项样式优化 */
+  .nav-menu.mobile-menu {
+    flex: 1;
+    justify-content: flex-end;
   }
   
   .header .el-menu-item {
     font-size: 14px !important;
     background-color: #122031 !important;
     color: white !important;
+    padding: 0 12px !important; /* 减少内边距 */
   }
   
   .header .el-sub-menu .el-sub-menu__title {
     font-size: 14px !important;
     background-color: #122031 !important;
     color: white !important;
+    padding: 0 12px !important; /* 减少内边距 */
   }
 }
 
 @media (max-width: 480px) {
   .header .title-text {
-    font-size: 16px;
+    font-size: 14px; /* 小屏手机进一步减小 */
   }
   
   .header .divider {
     color: white;
+    font-size: 12px;
   }
   
   .header .el-menu-item {
     font-size: 12px !important;
     background-color: #122031 !important;
     color: white !important;
+    padding: 0 8px !important; /* 进一步减少内边距 */
   }
   
   .header .el-sub-menu .el-sub-menu__title {
     font-size: 12px !important;
     background-color: #122031 !important;
     color: white !important;
+    padding: 0 8px !important; /* 进一步减少内边距 */
   }
 }

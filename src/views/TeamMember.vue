@@ -11,17 +11,30 @@
         :default-active="activeMenu" 
         @select="handleMenuSelect"
         class="nav-menu"
+        :class="{ 'mobile-menu': isMobile }"
       >
-        <el-menu-item index="1">首页</el-menu-item>
-        <el-sub-menu index="2">
-          <template #title>车队介绍</template>
-          <el-menu-item index="2-1">历史沿革</el-menu-item>
-          <el-menu-item index="2-2">车队成员</el-menu-item>
-        </el-sub-menu>
-        <el-menu-item index="3">骑行路线</el-menu-item>
-        <el-menu-item index="4">活动动态</el-menu-item>
-        <el-menu-item index="5">卧云社区</el-menu-item>
-        <el-menu-item index="6">联系我们</el-menu-item>
+        <!-- 手机端只显示首页和车队介绍 -->
+        <template v-if="isMobile">
+          <el-menu-item index="1">首页</el-menu-item>
+          <el-sub-menu index="2">
+            <template #title>车队介绍</template>
+            <el-menu-item index="2-1">历史沿革</el-menu-item>
+            <el-menu-item index="2-2">车队成员</el-menu-item>
+          </el-sub-menu>
+        </template>
+        <!-- 桌面端显示完整菜单 -->
+        <template v-else>
+          <el-menu-item index="1">首页</el-menu-item>
+          <el-sub-menu index="2">
+            <template #title>车队介绍</template>
+            <el-menu-item index="2-1">历史沿革</el-menu-item>
+            <el-menu-item index="2-2">车队成员</el-menu-item>
+          </el-sub-menu>
+          <el-menu-item index="3">骑行路线</el-menu-item>
+          <el-menu-item index="4">活动动态</el-menu-item>
+          <el-menu-item index="5">卧云社区</el-menu-item>
+          <el-menu-item index="6">联系我们</el-menu-item>
+        </template>
       </el-menu>
     </el-header>
 
@@ -43,7 +56,7 @@
               <span class="stat-label">活跃成员</span>
             </div>
             <div class="stat-item">
-              <span class="stat-number">50K+</span>
+              <span class="stat-number">20K+</span>
               <span class="stat-label">总骑行里程</span>
             </div>
             <div class="stat-item">
@@ -257,6 +270,7 @@ const activeMenu = ref("2-2");
 const selectedMember = ref<Member | null>(null);
 const memberRefs = reactive<Record<string, HTMLElement | null>>({});
 const showHeader = ref(false); // 控制header显示隐藏
+const isMobile = ref(false); // 添加移动端检测
 let lastScrollY = 0; // 记录上次滚动位置
 
 // 初始化router
@@ -375,6 +389,14 @@ const observeElements = () => {
 };
 
 onMounted(() => {
+  // 检测是否为移动端
+  const checkMobile = () => {
+    isMobile.value = window.innerWidth <= 768;
+  };
+  
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  
   // 添加滚动监听
   window.addEventListener('scroll', handleScroll, { passive: true });
   
@@ -386,5 +408,8 @@ onMounted(() => {
 onUnmounted(() => {
   // 移除滚动监听
   window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 768;
+  });
 });
 </script>

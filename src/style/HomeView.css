@@ -65,6 +65,7 @@ body:has(.home) {
   text-align: center;
   color: white;
   max-width: 1000px !important;
+  padding: 0 20px;
 }
 
 .hero-slogan {
@@ -80,6 +81,50 @@ body:has(.home) {
   margin-top: 1rem;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
   animation: fadeInUp 1s ease-out;
+}
+
+/* 手机端Hero Section优化 */
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 0 15px;
+    max-width: 100%;
+  }
+  
+  .hero-slogan {
+    font-size: 2.5rem;
+    white-space: normal;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+    line-height: 1.4;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-slogan {
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .title {
+    margin-left: 10px;
+  }
+  
+  .title img {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .title-text {
+    font-size: 22px;
+  }
 }
 
 @keyframes fadeInDown {
@@ -245,6 +290,73 @@ body:has(.home) {
   color: #6c757d;
 }
 
+/* Intro Section 手机端优化 */
+@media (max-width: 768px) {
+  .intro-section-new {
+    padding: 60px 20px;
+  }
+  
+  .intro-content-new {
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 15px;
+  }
+  
+  .intro-image-new {
+    order: 2;
+  }
+  
+  .intro-text-new {
+    order: 1;
+    text-align: center;
+  }
+  
+  .section-title-new {
+    font-size: 2rem;
+  }
+  
+  .intro-paragraph-new {
+    font-size: 1rem;
+    text-align: left;
+  }
+  
+  .team-stats-new {
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .stat-number-new {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .intro-section-new {
+    padding: 40px 15px;
+  }
+  
+  .section-title-new {
+    font-size: 1.6rem;
+  }
+  
+  .intro-paragraph-new {
+    font-size: 0.9rem;
+  }
+  
+  .team-stats-new {
+    gap: 20px;
+  }
+  
+  .stat-number-new {
+    font-size: 2.5rem;
+  }
+  
+  .stat-label-new {
+    font-size: 0.9rem;
+  }
+}
+
 /* Dual Carousel Section */
 .dual-carousel-section-new {
   padding: 100px 0;
@@ -284,6 +396,94 @@ body:has(.home) {
   padding: 20px;
 }
 
+/* 双轮播图手机端优化 */
+@media (max-width: 768px) {
+  .dual-carousel-section-new {
+    padding: 60px 20px;
+  }
+  
+  .dual-carousel-container-new {
+    flex-direction: column;
+    gap: 25px;
+    margin: 30px auto 0;
+    max-width: 100%;
+  }
+  
+  .carousel-item-new {
+    height: 300px;
+  }
+  
+  /* 修复Element Plus轮播图在手机端的高度问题 */
+  .carousel-item-new .el-carousel {
+    height: 300px !important;
+  }
+  
+  .carousel-item-new .el-carousel__container {
+    height: 300px !important;
+  }
+  
+  .carousel-item-new .el-carousel__item {
+    height: 300px !important;
+  }
+  
+  .carousel-img-new {
+    height: 300px;
+  }
+  
+  .carousel-caption-new {
+    padding: 15px;
+  }
+  
+  .carousel-caption-new h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+  
+  .section-title-new {
+    font-size: 2rem;
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dual-carousel-section-new {
+    padding: 40px 15px;
+  }
+  
+  .carousel-item-new {
+    height: 250px;
+  }
+  
+  /* 修复Element Plus轮播图在小屏手机端的高度问题 */
+  .carousel-item-new .el-carousel {
+    height: 250px !important;
+  }
+  
+  .carousel-item-new .el-carousel__container {
+    height: 250px !important;
+  }
+  
+  .carousel-item-new .el-carousel__item {
+    height: 250px !important;
+  }
+  
+  .carousel-img-new {
+    height: 250px;
+  }
+  
+  .carousel-caption-new {
+    padding: 12px;
+  }
+  
+  .carousel-caption-new h3 {
+    font-size: 1rem;
+  }
+  
+  .section-title-new {
+    font-size: 1.6rem;
+  }
+}
+
 /* Philosophy Section */
 .philosophy-section-new {
   padding: 100px 0;
@@ -319,6 +519,69 @@ body:has(.home) {
   background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
   color: white;
   padding: 20px;
+}
+
+/* Philosophy Section 手机端优化 */
+@media (max-width: 768px) {
+  .philosophy-section-new {
+    padding: 60px 20px;
+    margin-bottom: 60px;
+  }
+  
+  .philosophy-grid-new {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 30px auto 0;
+    padding: 0 15px;
+  }
+  
+  .philosophy-item-new {
+    height: 200px;
+  }
+  
+  .philosophy-content-new {
+    padding: 15px;
+  }
+  
+  .philosophy-content-new h3 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+  }
+  
+  .philosophy-content-new p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 480px) {
+  .philosophy-section-new {
+    padding: 40px 15px;
+    margin-bottom: 40px;
+  }
+  
+  .philosophy-grid-new {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .philosophy-item-new {
+    height: 250px;
+  }
+  
+  .philosophy-content-new {
+    padding: 20px;
+  }
+  
+  .philosophy-content-new h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+  
+  .philosophy-content-new p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
 }
 
 /* Join Us Section */
@@ -511,8 +774,12 @@ body:has(.home) {
 @media (max-width: 768px) {
   .join-section-new {
     padding: 40px 20px 80px 20px;
-    min-height: 350px;
+    min-height: 700px;
     background-size: 80%;
+    background-image: url('/imagines/dibuShouji.jpg');
+    background-size: 100%;
+    background-position: top left;
+    background-repeat: no-repeat;
   }
   
   .team-features {
@@ -567,7 +834,7 @@ body:has(.home) {
   transform: translateY(0);
 }
 
-/* 响应式设计 */
+/* 响应式设计 - 通用优化 */
 @media (max-width: 768px) {
   .main-slogan {
     font-size: 60px;
@@ -932,7 +1199,7 @@ body:has(.home) {
   opacity: 0.8;
 }
 
-/* 响应式设计 */
+/* 响应式设计 - 活动事迹时间线优化 */
 @media (max-width: 1024px) {
   .journey-item {
     gap: 40px;
@@ -945,27 +1212,39 @@ body:has(.home) {
   
   .journey-text {
     padding: 30px;
+    min-width: auto;
   }
   
   .journey-title {
     font-size: 2rem;
   }
+  
+  .journey-meta {
+    margin-top: 150px;
+  }
 }
 
 @media (max-width: 768px) {
+  .journey-container {
+    padding: 0 15px;
+  }
+  
   .journey-item,
   .journey-item-reverse {
     flex-direction: column;
-    gap: 30px;
-    margin-bottom: 80px;
+    gap: 25px;
+    margin-bottom: 60px;
   }
   
   .journey-image {
     max-width: 100%;
+    min-width: 60%;
+    height:350px;
   }
   
   .journey-img {
-    height: 280px;
+    height: 250px;
+    border-radius: 10px;
   }
   
   .journey-content {
@@ -973,23 +1252,72 @@ body:has(.home) {
   }
   
   .journey-text {
-    padding: 25px;
+    padding: 20px;
+    min-width: auto;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .journey-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+    margin-bottom: 12px;
   }
   
   .journey-date {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    margin-bottom: 15px;
   }
   
   .journey-description {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+  
+  .journey-meta {
+    margin-top: 15px;
+    gap: 20px;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
   }
   
   .activities-section {
-    padding: 60px 0;
+    padding: 40px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .journey-container {
+    padding: 0 10px;
+    margin-top: 30px;
+  }
+  
+  .journey-item {
+    margin-bottom: 40px;
+  }
+  
+  .journey-img {
+    height: 280px;
+  }
+  
+  .journey-text {
+    padding: 15px;
+  }
+  
+  .journey-title {
+    font-size: 1.4rem;
+  }
+  
+  .journey-description {
+    font-size: 0.9rem;
+  }
+  
+  .journey-meta {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
   }
 }
 
@@ -1095,21 +1423,63 @@ body:has(.home) {
   }
 }
 
+/* 品牌展示区域手机端优化 */
 @media (max-width: 768px) {
+  .brand-section-wrapper {
+    height: 80vh;
+  }
+  
+  .brand-section {
+    height: 80vh;
+    padding: 60px 0;
+  }
+  
+  .brand-background-img {
+    min-width: 900%;
+    object-position: center center;
+  }
+  
+  .brand-overlay {
+    width: 900%;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .brand-content {
+    left: 20px;
+    padding: 0 20px;
+    top: 25%;
+    max-width: calc(100% - 40px);
+  }
+  
   .brand-text {
-    margin-left: 20px;
+    margin-left: 0;
+    max-width: 100%;
   }
   
   .brand-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
+    line-height: 1.1;
+    margin-bottom: 15px;
   }
   
   .brand-subtitle {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
   }
   
   .brand-description {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 25px;
+  }
+  
+  .brand-keywords {
+    gap: 10px;
+  }
+  
+  .keyword {
+    padding: 8px 16px;
+    font-size: 0.9rem;
   }
 
   .qr-modal {
@@ -1119,5 +1489,39 @@ body:has(.home) {
   .qr-code-image {
     width: 180px;
     height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-section-wrapper {
+    height: 70vh;
+  }
+  
+  .brand-section {
+    height: 70vh;
+    padding: 40px 0;
+  }
+  
+  .brand-content {
+    left: 15px;
+    padding: 0 15px;
+    top: 20%;
+  }
+  
+  .brand-title {
+    font-size: 1.8rem;
+  }
+  
+  .brand-subtitle {
+    font-size: 1.2rem;
+  }
+  
+  .brand-description {
+    font-size: 0.9rem;
+  }
+  
+  .keyword {
+    padding: 6px 12px;
+    font-size: 0.8rem;
   }
 }

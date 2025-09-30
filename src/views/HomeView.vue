@@ -12,17 +12,30 @@
         :default-active="activeMenu" 
         @select="handleMenuSelect"
         class="nav-menu"
+        :class="{ 'mobile-menu': isMobile }"
       >
-        <el-menu-item index="1">首页</el-menu-item>
-        <el-sub-menu index="2">
-          <template #title>车队介绍</template>
-          <el-menu-item index="2-1">历史沿革</el-menu-item>
-          <el-menu-item index="2-2">车队成员</el-menu-item>
-        </el-sub-menu>
-        <el-menu-item index="3">骑行路线</el-menu-item>
-        <el-menu-item index="4">活动动态</el-menu-item>
-        <el-menu-item index="5">卧云社区</el-menu-item>
-        <el-menu-item index="6">联系我们</el-menu-item>
+        <!-- 手机端只显示首页和车队介绍 -->
+        <template v-if="isMobile">
+          <el-menu-item index="1">首页</el-menu-item>
+          <el-sub-menu index="2">
+            <template #title>车队介绍</template>
+            <el-menu-item index="2-1">历史沿革</el-menu-item>
+            <el-menu-item index="2-2">车队成员</el-menu-item>
+          </el-sub-menu>
+        </template>
+        <!-- 桌面端显示完整菜单 -->
+        <template v-else>
+          <el-menu-item index="1">首页</el-menu-item>
+          <el-sub-menu index="2">
+            <template #title>车队介绍</template>
+            <el-menu-item index="2-1">历史沿革</el-menu-item>
+            <el-menu-item index="2-2">车队成员</el-menu-item>
+          </el-sub-menu>
+          <el-menu-item index="3">骑行路线</el-menu-item>
+          <el-menu-item index="4">活动动态</el-menu-item>
+          <el-menu-item index="5">卧云社区</el-menu-item>
+          <el-menu-item index="6">联系我们</el-menu-item>
+        </template>
       </el-menu>
     </el-header>
 
@@ -283,6 +296,7 @@ const router = useRouter(); // 步骤二：获取 router 实例
 
 const activeMenu = ref("1");
 const isHeaderVisible = ref(true);
+const isMobile = ref(false); // 添加移动端检测
 let lastScrollTop = 0;
 const homeRef = ref<HTMLElement | null>(null);
 const heroSectionRef = ref<HTMLElement | null>(null);
@@ -511,6 +525,14 @@ const observeElements = () => {
 };
 
 onMounted(() => {
+  // 检测是否为移动端
+  const checkMobile = () => {
+    isMobile.value = window.innerWidth <= 768;
+  };
+  
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  
   document.body.addEventListener('scroll', handleScroll);
   // 延迟初始化观察器，等待DOM完全加载
   setTimeout(() => {
@@ -519,5 +541,8 @@ onMounted(() => {
 });
 onUnmounted(() => {
   document.body.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 768;
+  });
 });
 </script>
